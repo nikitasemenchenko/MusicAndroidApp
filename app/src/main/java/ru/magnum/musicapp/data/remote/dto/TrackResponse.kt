@@ -1,9 +1,9 @@
-package ru.magnum.musicapp.data.dto
+package ru.magnum.musicapp.data.remote.dto
 
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class TracksResponse(
+data class TrackResponse(
     val id: Int,
     val title: String,
     val artists: List<ArtistResponse>,

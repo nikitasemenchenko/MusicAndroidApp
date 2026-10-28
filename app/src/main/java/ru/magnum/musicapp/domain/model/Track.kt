@@ -13,8 +13,8 @@ data class Track(
 )
 
 fun Track.getDurationString(): String{
-    var sec = durationMs / 1000
-    val min = sec % 60
-    sec -= (min*60)
+    val totalSec = durationMs / 1000
+    val min = totalSec / 60
+    val sec = totalSec % 60
     return if(sec < 10) "$min:0$sec" else "$min:$sec"
 }

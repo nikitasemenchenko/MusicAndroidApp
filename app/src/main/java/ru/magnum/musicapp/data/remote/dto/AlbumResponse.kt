@@ -1,4 +1,4 @@
-package ru.magnum.musicapp.data.dto
+package ru.magnum.musicapp.data.remote.dto
 
 import kotlinx.serialization.Serializable
 
