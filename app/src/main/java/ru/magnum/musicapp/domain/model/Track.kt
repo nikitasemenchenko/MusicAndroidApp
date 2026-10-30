@@ -9,7 +9,9 @@ data class Track(
     val albums: List<Album>,
     val genres: List<Genre>,
     val durationMs: Int,
-    val releaseDate: LocalDate?
+    val releaseDate: LocalDate?,
+    val coverUrl: String?,
+    val streamUrl: String
 )
 
 fun Track.getDurationString(): String{

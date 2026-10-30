@@ -40,6 +40,8 @@ fun TrackResponse.toDomain(): Track {
         albums = this.albums.map { it.toDomain() },
         genres = this.genres.map { it.toDomain() },
         durationMs = this.durationMs,
-        releaseDate = this.releaseDate?.let { LocalDate.parse(it) }
+        releaseDate = this.releaseDate?.let { LocalDate.parse(it) },
+        coverUrl = this.coverUrl?.let { resolveUrl(it) },
+        streamUrl = resolveUrl(this.streamUrl)
     )
 }

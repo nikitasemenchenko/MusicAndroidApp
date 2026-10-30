@@ -25,14 +25,14 @@ android {
             buildConfigField(
                 "String",
                 "BASE_URL",
-                "\"http://10.0.2.2:8080/\""
+                "\"https://magnum-music.duckdns.org/\""
             )
         }
         release {
             buildConfigField(
                 "String",
                 "BASE_URL",
-                "\"http://10.0.2.2:8080/\""
+                "\"https://magnum-music.duckdns.org/\""
             )
             optimization {
                 enable = true
