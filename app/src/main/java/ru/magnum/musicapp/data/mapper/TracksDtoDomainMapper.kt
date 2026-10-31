@@ -8,7 +8,6 @@ import ru.magnum.musicapp.domain.model.Album
 import ru.magnum.musicapp.domain.model.Artist
 import ru.magnum.musicapp.domain.model.Genre
 import ru.magnum.musicapp.domain.model.Track
-import java.time.LocalDate
 
 fun ArtistResponse.toDomain(): Artist {
     return Artist(
@@ -28,7 +27,7 @@ fun AlbumResponse.toDomain(): Album {
     return Album(
         id = this.id,
         title = this.title,
-        releaseDate = this.releaseDate?.let { LocalDate.parse(it) }
+        releaseDate = parseLocalDate(this.releaseDate)
     )
 }
 
@@ -40,7 +39,7 @@ fun TrackResponse.toDomain(): Track {
         albums = this.albums.map { it.toDomain() },
         genres = this.genres.map { it.toDomain() },
         durationMs = this.durationMs,
-        releaseDate = this.releaseDate?.let { LocalDate.parse(it) },
+        releaseDate = parseLocalDate(this.releaseDate),
         coverUrl = this.coverUrl?.let { resolveUrl(it) },
         streamUrl = resolveUrl(this.streamUrl)
     )
