@@ -23,7 +23,6 @@ fun CatalogScreen(
     viewModel: CatalogViewModel = hiltViewModel()
 ){
     val uiState by viewModel.state.collectAsStateWithLifecycle()
-
     Box(modifier = Modifier.fillMaxSize()) {
         if (uiState.isLoading && uiState.tracks.isEmpty()) {
             CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))

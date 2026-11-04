@@ -5,17 +5,16 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import ru.magnum.musicapp.domain.repository.TracksRepository
 import javax.inject.Inject
 
-import kotlinx.coroutines.flow.catch
-
 @HiltViewModel
 class CatalogViewModel @Inject constructor(
     private val repository: TracksRepository
-): ViewModel() {
+) : ViewModel() {
     private val _state = MutableStateFlow(CatalogUIState())
     val state = _state.asStateFlow()
 
@@ -36,7 +35,13 @@ class CatalogViewModel @Inject constructor(
         viewModelScope.launch {
             repository.getTracks()
                 .catch { e ->
-                    _state.update { it.copy(isLoading = false, isSyncing = false, errorMessage = e.message) }
+                    _state.update {
+                        it.copy(
+                            isLoading = false,
+                            isSyncing = false,
+                            errorMessage = e.message
+                        )
+                    }
                 }
                 .collect { tracks ->
                     _state.update {
@@ -49,6 +54,10 @@ class CatalogViewModel @Inject constructor(
         }
 
         // Синхронизируем с сервером в фоне
+        synchronizeTracks()
+    }
+
+    fun synchronizeTracks() {
         viewModelScope.launch {
             runCatching {
                 repository.synchronizeTracks()

@@ -4,6 +4,8 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
 
     <application
         android:name=".di.MusicApplication"
@@ -16,6 +18,14 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MusicApp"
         android:usesCleartextTraffic="true">
+        <service
+            android:name=".data.exoplayer.MusicService"
+            android:foregroundServiceType="mediaPlayback"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="androidx.media3.session.MediaSessionService"/>
+            </intent-filter>
+        </service>
         <activity
             android:name=".MainActivity"
             android:exported="true"

@@ -1,14 +1,17 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
+    alias(libs.plugins.kotlin.android)
 }
 
 android {
     namespace = "ru.magnum.musicapp"
-    compileSdk = 37
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "ru.magnum.musicapp"
@@ -34,9 +37,7 @@ android {
                 "BASE_URL",
                 "\"https://magnum-music.duckdns.org/\""
             )
-            optimization {
-                enable = true
-            }
+
         }
     }
     compileOptions {
@@ -49,9 +50,15 @@ android {
     }
 }
 
+kotlin {
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_17)
+    }
+}
+
 dependencies {
-    implementation(platform(libs.androidx.compose.bom))
     // Core
+    implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.ui)
@@ -59,6 +66,7 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.core.ktx)
     //Testing and debug
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))
@@ -84,4 +92,14 @@ dependencies {
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
+    //ExoPlayer
+    implementation(libs.media3.exoplayer)
+    implementation(libs.media3.exoplayer.dash)
+    implementation(libs.media3.ui.compose.material3)
+    implementation(libs.media3.session)
+
+    //Coil
+    implementation(libs.coil)
+    implementation(libs.coil.compose)
+    implementation(libs.coil.network)
 }
