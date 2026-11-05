@@ -8,15 +8,19 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import ru.magnum.musicapp.data.exoplayer.PlayerConnection
+import ru.magnum.musicapp.domain.model.Track
 import ru.magnum.musicapp.domain.repository.TracksRepository
 import javax.inject.Inject
 
 @HiltViewModel
 class CatalogViewModel @Inject constructor(
-    private val repository: TracksRepository
+    private val repository: TracksRepository,
+    private val controller: PlayerConnection
 ) : ViewModel() {
     private val _state = MutableStateFlow(CatalogUIState())
     val state = _state.asStateFlow()
+
 
     init {
         getTracks()
@@ -73,5 +77,9 @@ class CatalogViewModel @Inject constructor(
                 _state.update { it.copy(isSyncing = false) }
             }
         }
+    }
+
+    fun playTrack(track: Track){
+        controller.playTrack(track)
     }
 }

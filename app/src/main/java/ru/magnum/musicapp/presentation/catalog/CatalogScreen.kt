@@ -1,5 +1,6 @@
 package ru.magnum.musicapp.presentation.catalog
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -59,6 +60,9 @@ fun CatalogScreen(
                     Text(
                         text = track.title,
                         modifier = Modifier.padding(8.dp)
+                            .clickable {
+                            viewModel.playTrack(track)
+                        }
                     )
                 }
             }

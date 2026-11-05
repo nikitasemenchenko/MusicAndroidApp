@@ -10,7 +10,7 @@ kotlin = "2.1.0"
 composeBom = "2025.02.00"
 
 ksp = "2.1.0-1.0.29"
-hilt = "2.51.1"
+hilt = "2.56.2"
 hiltNavigationCompose = "1.2.0"
 navigationCompose = "2.8.7"
 lifecycleViewModelCompose = "2.8.7"
