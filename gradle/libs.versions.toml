@@ -15,6 +15,8 @@ hiltNavigationCompose = "1.2.0"
 navigationCompose = "2.8.7"
 lifecycleViewModelCompose = "2.8.7"
 kotlinxSerializationJson = "1.7.3"
+kotlinxCoroutines = "1.10.1"
+androidxTestCore = "1.6.1"
 retrofit = "2.11.0"
 okhttp = "4.12.0"
 retrofitKotlinxSerializationConverter = "1.0.0"
@@ -27,6 +29,7 @@ coreKtxVersion = "1.15.0"
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
+androidx-test-core = { group = "androidx.test", name = "core-ktx", version.ref = "androidxTestCore" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
@@ -52,6 +55,7 @@ androidx-hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navig
 
 # Serialization and network
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
+kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinxCoroutines" }
 retrofit-core = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
 retrofit-kotlinx-serialization = { group = "com.jakewharton.retrofit", name = "retrofit2-kotlinx-serialization-converter", version.ref = "retrofitKotlinxSerializationConverter" }
 okhttp-core = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }

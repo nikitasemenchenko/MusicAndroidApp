@@ -6,7 +6,8 @@ import ru.magnum.musicapp.domain.model.Artist
 import ru.magnum.musicapp.domain.model.Genre
 import ru.magnum.musicapp.domain.model.Track
 
-fun FullTrackInfo.toDomain(): Track {
+fun FullTrackInfo.toDomain(): Track? {
+    val streamUrl = resolveUrl(track.streamUrl) ?: return null
     return Track(
         id = this.track.id,
         title = this.track.title,
@@ -32,6 +33,6 @@ fun FullTrackInfo.toDomain(): Track {
         durationMs = this.track.durationMs,
         releaseDate = parseLocalDate(this.track.releaseDate),
         coverUrl = this.track.coverUrl?.let { resolveUrl(it) },
-        streamUrl = resolveUrl(this.track.streamUrl)
+        streamUrl = streamUrl
     )
 }

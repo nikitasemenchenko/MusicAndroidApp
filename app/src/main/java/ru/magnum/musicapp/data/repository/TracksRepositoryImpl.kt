@@ -8,6 +8,7 @@ import ru.magnum.musicapp.data.local.MusicDatabase
 import ru.magnum.musicapp.data.local.model.TrackAlbumsTable
 import ru.magnum.musicapp.data.local.model.TrackArtistsTable
 import ru.magnum.musicapp.data.local.model.TrackGenresTable
+import ru.magnum.musicapp.data.mapper.resolveUrl
 import ru.magnum.musicapp.data.mapper.toDomain
 import ru.magnum.musicapp.data.mapper.toEntity
 import ru.magnum.musicapp.data.remote.api.MusicApi
@@ -28,10 +29,11 @@ class TracksRepositoryImpl @Inject constructor(
     }
 
     override fun getTracks(): Flow<List<Track>> {
-        return musicDao.getTracks().map { list -> list.map { it.toDomain() } }
+        return musicDao.getTracks().map { list -> list.mapNotNull { it.toDomain() } }
     }
 
-    private suspend fun saveTracks(tracksDto: List<TrackResponse>) {
+    private suspend fun saveTracks(response: List<TrackResponse>) {
+        val tracksDto = response.filter { resolveUrl(it.streamUrl) != null }
         if (tracksDto.isEmpty()) return
 
         val tracksTables = tracksDto.map { it.toEntity() }

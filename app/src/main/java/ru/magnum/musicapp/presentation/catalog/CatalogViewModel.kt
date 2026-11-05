@@ -3,6 +3,8 @@ package ru.magnum.musicapp.presentation.catalog
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
@@ -16,70 +18,74 @@ import javax.inject.Inject
 @HiltViewModel
 class CatalogViewModel @Inject constructor(
     private val repository: TracksRepository,
-    private val controller: PlayerConnection
+    private val playerConnection: PlayerConnection
 ) : ViewModel() {
     private val _state = MutableStateFlow(CatalogUIState())
     val state = _state.asStateFlow()
+    val playerConnectionStatus = playerConnection.connectionStatus
 
+    private var tracksJob: Job? = null
+    private var syncJob: Job? = null
 
     init {
         getTracks()
     }
 
     fun getTracks() {
-        // Если треков в кеше еще нет, то показываем крутилку
-        if (_state.value.tracks.isEmpty()) {
-            _state.update { it.copy(isLoading = true, errorMessage = null) }
-        } else {
-            // Если треки уже есть, включаем фоновый индикатор обновления
-            _state.update { it.copy(isSyncing = true, errorMessage = null) }
+        if (tracksJob?.isActive != true) {
+            tracksJob = viewModelScope.launch {
+                repository.getTracks()
+                    .catch {
+                        _state.update {
+                            it.copy(
+                                isLoading = false,
+                                errorMessage = "Не удалось загрузить каталог"
+                            )
+                        }
+                    }
+                    .collect { tracks ->
+                        _state.update {
+                            it.copy(
+                                tracks = tracks,
+                                isLoading = tracks.isEmpty() && it.isSyncing,
+                                errorMessage = if (tracks.isNotEmpty()) null else it.errorMessage
+                            )
+                        }
+                    }
+            }
         }
 
-        // Показываем кеш
-        viewModelScope.launch {
-            repository.getTracks()
-                .catch { e ->
-                    _state.update {
-                        it.copy(
-                            isLoading = false,
-                            isSyncing = false,
-                            errorMessage = e.message
-                        )
-                    }
-                }
-                .collect { tracks ->
-                    _state.update {
-                        it.copy(
-                            isLoading = false,
-                            tracks = tracks
-                        )
-                    }
-                }
+        if (syncJob?.isActive == true) return
+        _state.update {
+            it.copy(isLoading = it.tracks.isEmpty(), isSyncing = true, errorMessage = null)
         }
-
-        // Синхронизируем с сервером в фоне
-        synchronizeTracks()
-    }
-
-    fun synchronizeTracks() {
-        viewModelScope.launch {
-            runCatching {
+        syncJob = viewModelScope.launch {
+            try {
                 repository.synchronizeTracks()
-            }.onFailure { e ->
-                // Ошибку сети показываем только если у нас вообще нет кэша
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
                 _state.update {
                     it.copy(
-                        isSyncing = false,
-                        errorMessage = if (it.tracks.isEmpty()) e.message else null
+                        errorMessage = if (it.tracks.isEmpty()) "Не удалось загрузить каталог" else null
                     )
                 }
-            }.onSuccess {
-                _state.update { it.copy(isSyncing = false) }
+            } finally {
+                _state.update { it.copy(isLoading = false, isSyncing = false) }
             }
         }
     }
 
-    fun playTrack(track: Track){
-        controller.playTrack(track)
+    fun playTrack(track: Track) {
+        playerConnection.playTrack(track)
+    }
+
+    fun retryPlayerConnection() {
+        playerConnection.retryConnection()
+    }
+
+    override fun onCleared() {
+        playerConnection.release()
+        super.onCleared()
     }
 }

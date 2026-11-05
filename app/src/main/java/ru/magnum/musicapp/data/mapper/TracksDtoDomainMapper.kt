@@ -31,7 +31,8 @@ fun AlbumResponse.toDomain(): Album {
     )
 }
 
-fun TrackResponse.toDomain(): Track {
+fun TrackResponse.toDomain(): Track? {
+    val streamUrl = resolveUrl(this.streamUrl) ?: return null
     return Track(
         id = this.id,
         title = this.title,
@@ -41,6 +42,6 @@ fun TrackResponse.toDomain(): Track {
         durationMs = this.durationMs,
         releaseDate = parseLocalDate(this.releaseDate),
         coverUrl = this.coverUrl?.let { resolveUrl(it) },
-        streamUrl = resolveUrl(this.streamUrl)
+        streamUrl = streamUrl
     )
 }
