@@ -21,6 +21,10 @@ interface MusicDao {
     @Query("SELECT * FROM tracks")
     fun getTracks(): Flow<List<FullTrackInfo>>
 
+    @Transaction
+    @Query("SELECT * FROM tracks WHERE id = :id")
+    suspend fun getTrack(id: Int): FullTrackInfo?
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertTracks(tracks: List<TracksTable>)
 

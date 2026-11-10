@@ -80,4 +80,8 @@ class TracksRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun getTrack(id: Int): Track? {
+        return musicDao.getTrack(id)?.toDomain()
+    }
+
 }

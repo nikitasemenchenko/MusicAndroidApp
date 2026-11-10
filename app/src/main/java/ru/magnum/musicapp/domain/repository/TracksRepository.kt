@@ -6,4 +6,5 @@ import ru.magnum.musicapp.domain.model.Track
 interface TracksRepository {
     suspend fun synchronizeTracks()
     fun getTracks(): Flow<List<Track>>
+    suspend fun getTrack(id: Int): Track?
 }
