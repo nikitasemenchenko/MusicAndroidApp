@@ -6,7 +6,6 @@ import android.os.Handler
 import android.os.Looper
 import androidx.core.content.ContextCompat
 import androidx.media3.common.MediaItem
-import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
@@ -15,6 +14,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import ru.magnum.musicapp.data.mapper.toMediaItem
 import ru.magnum.musicapp.domain.model.Track
 import javax.inject.Inject
 
@@ -34,7 +34,7 @@ class PlayerConnection @Inject constructor(
 
     private var controller: MediaController? = null
     private var connectionFuture: ListenableFuture<MediaController>? = null
-    private var currentTrack: Track? = null
+    private var pendingPlayback: PendingPlayback? = null
 
     private var released = false
 
@@ -42,11 +42,32 @@ class PlayerConnection @Inject constructor(
         onMain { connect() }
     }
 
-    fun playTrack(track: Track) {
+    fun playTrack(
+        tracks: List<Track>,
+        index: Int,
+        positionMs: Long
+    ) {
+        require(tracks.isNotEmpty()) {"Track list must not be empty"}
+        require(index in tracks.indices) { "Index out of bounds" }
+        require(positionMs >= 0) {"Position must not be negative"}
         onMain {
             if (released) return@onMain
-            currentTrack = track
-            controller?.let { playCurrentTrack(it, track) }
+
+            val mediaItems = tracks.map { it.toMediaItem() }
+
+            pendingPlayback = PendingPlayback(
+                mediaItems,
+                index,
+                positionMs
+            )
+            controller?.let {
+                play(
+                    it,
+                    mediaItems,
+                    index,
+                    positionMs
+                )
+            }
         }
     }
 
@@ -59,7 +80,7 @@ class PlayerConnection @Inject constructor(
             if (released) return@onMain
 
             released = true
-            currentTrack = null
+            pendingPlayback = null
             releaseConnection()
         }
     }
@@ -104,53 +125,58 @@ class PlayerConnection @Inject constructor(
                             failConnection()
                         } else {
                             controller = connectedController
-                            val track = currentTrack
-                            if (track == null) {
+                            val pending = pendingPlayback
+                            if (pending == null) {
                                 _connectionStatus.value = PlayerConnectionStatus.CONNECTED
                             } else {
-                                playCurrentTrack(connectedController, track)
+                                play(
+                                    connectedController,
+                                    pending.mediaItems,
+                                    pending.currentIndex,
+                                    pending.currentPositionMs
+                                )
                             }
                         }
-                    } catch (_: Exception) {
+                    } catch (e: Exception) {
+                        e.printStackTrace()
                         failConnection()
                     }
                 },
                 ContextCompat.getMainExecutor(context)
             )
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            e.printStackTrace()
             failConnection()
         }
     }
 
-    private fun playCurrentTrack(controller: MediaController, track: Track) {
+    private fun play(
+        controller: MediaController,
+        items: List<MediaItem>,
+        trackIndex: Int,
+        positionMs: Long
+        ) {
         if (released || this.controller !== controller) return
 
         try {
             check(controller.isConnected)
-            check(controller.isCommandAvailable(Player.COMMAND_SET_MEDIA_ITEM))
+            check(controller.isCommandAvailable(Player.COMMAND_CHANGE_MEDIA_ITEMS))
             check(controller.isCommandAvailable(Player.COMMAND_PREPARE))
             check(controller.isCommandAvailable(Player.COMMAND_PLAY_PAUSE))
 
-            val mediaItem = MediaItem.Builder()
-                .setUri(track.streamUrl)
-                .setMediaId(track.id.toString())
-                .setMediaMetadata(
-                    MediaMetadata.Builder()
-                        .setTitle(track.title)
-                        .setArtist(
-                            track.artists.joinToString { it.name }
-                        )
-                        .build()
-                )
-                .build()
-            controller.setMediaItem(mediaItem)
+            controller.setMediaItems(
+                items,
+                trackIndex,
+                positionMs
+            )
             controller.prepare()
             controller.play()
 
             if (released || this.controller !== controller) return
-            currentTrack = null
+            pendingPlayback = null
             _connectionStatus.value = PlayerConnectionStatus.CONNECTED
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            e.printStackTrace()
             failConnection()
         }
     }

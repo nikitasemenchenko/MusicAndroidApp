@@ -76,8 +76,16 @@ class CatalogViewModel @Inject constructor(
         }
     }
 
-    fun playTrack(track: Track) {
-        playerConnection.playTrack(track)
+    fun play(
+        tracks: List<Track>,
+        index: Int,
+        position: Long = 0
+        ) {
+        playerConnection.playTrack(
+            tracks,
+            index,
+            position
+        )
     }
 
     fun retryPlayerConnection() {

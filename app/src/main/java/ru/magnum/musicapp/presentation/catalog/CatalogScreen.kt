@@ -8,7 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.LinearProgressIndicator
@@ -46,14 +46,24 @@ fun CatalogScreen(
         }
         Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
             when {
-                uiState.tracks.isNotEmpty() -> LazyColumn(
+                uiState.tracks.isNotEmpty() ->
+                    LazyColumn(
                     modifier = Modifier.fillMaxSize().padding(16.dp)
                 ) {
-                    items(uiState.tracks, key = { it.id }) { track ->
+                    itemsIndexed(
+                        uiState.tracks,
+                        key = { _, track ->
+                            track.id
+                        }
+                    ) { index, track ->
                         Text(
                             text = track.title,
                             modifier = Modifier.padding(8.dp).clickable {
-                                viewModel.playTrack(track)
+                                viewModel.play(
+                                    uiState.tracks,
+                                    index,
+
+                                )
                             }
                         )
                     }
