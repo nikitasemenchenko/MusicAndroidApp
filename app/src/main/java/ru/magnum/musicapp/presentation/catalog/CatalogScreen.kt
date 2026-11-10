@@ -25,18 +25,35 @@ import ru.magnum.musicapp.data.exoplayer.PlayerConnectionStatus
 
 @Composable
 fun CatalogScreen(
-    viewModel: CatalogViewModel = hiltViewModel()
-){
+    viewModel: CatalogViewModel = hiltViewModel(),
+    toPlayerScreen: () -> Unit
+) {
     val uiState by viewModel.state.collectAsStateWithLifecycle()
     val playerConnectionStatus by viewModel.playerConnectionStatus.collectAsStateWithLifecycle()
-    Column(modifier = Modifier.fillMaxSize()) {
+
+    Column(
+        modifier = Modifier.fillMaxSize()
+    ) {
         if (playerConnectionStatus == PlayerConnectionStatus.CONNECTING) {
-            Text("Подключение к плееру…", modifier = Modifier.padding(16.dp))
+            Text(
+                "Подключение к плееру…",
+                modifier = Modifier.padding(16.dp)
+            )
         }
         if (playerConnectionStatus == PlayerConnectionStatus.ERROR) {
-            Row(modifier = Modifier.fillMaxWidth().padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-                Text("Не удалось подключиться к плееру", modifier = Modifier.weight(1f))
-                Button(onClick = { viewModel.retryPlayerConnection() }) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    "Не удалось подключиться к плееру",
+                    modifier = Modifier.weight(1f)
+                )
+                Button(
+                    onClick = { viewModel.retryPlayerConnection() }
+                ) {
                     Text("Повторить")
                 }
             }
@@ -44,45 +61,74 @@ fun CatalogScreen(
         if (uiState.isSyncing && uiState.tracks.isNotEmpty()) {
             LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
         }
-        Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
+        Box(modifier = Modifier
+            .weight(1f)
+            .fillMaxWidth()) {
             when {
                 uiState.tracks.isNotEmpty() ->
                     LazyColumn(
-                    modifier = Modifier.fillMaxSize().padding(16.dp)
-                ) {
-                    itemsIndexed(
-                        uiState.tracks,
-                        key = { _, track ->
-                            track.id
-                        }
-                    ) { index, track ->
-                        Text(
-                            text = track.title,
-                            modifier = Modifier.padding(8.dp).clickable {
-                                viewModel.play(
-                                    uiState.tracks,
-                                    index,
-
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(16.dp)
+                    ) {
+                        itemsIndexed(
+                            uiState.tracks,
+                            key = { _, track ->
+                                track.id
+                            }
+                        ) { index, track ->
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(8.dp)
+                                    .clickable {
+                                        viewModel.play(
+                                            uiState.tracks,
+                                            index
+                                        )
+                                        toPlayerScreen()
+                                    }
+                            ) {
+                                Text(
+                                    text = track.title,
+                                    modifier = Modifier.padding(8.dp)
                                 )
                             }
-                        )
+                        }
                     }
-                }
-                uiState.isLoading -> CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-                uiState.errorMessage != null -> Column(
-                    modifier = Modifier.align(Alignment.Center).padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        text = uiState.errorMessage ?: "Произошла ошибка",
-                        color = MaterialTheme.colorScheme.error,
-                        style = MaterialTheme.typography.bodyLarge
+
+                uiState.isLoading -> {
+                    CircularProgressIndicator(
+                        modifier = Modifier.align(Alignment.Center)
                     )
-                    Button(onClick = { viewModel.getTracks() }, modifier = Modifier.padding(top = 8.dp)) {
-                        Text("Повторить")
+                }
+                uiState.errorMessage != null -> {
+                    Column(
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .padding(16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = uiState.errorMessage ?: "Произошла ошибка",
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                        Button(
+                            onClick = { viewModel.getTracks() },
+                            modifier = Modifier.padding(top = 8.dp)
+                        ) {
+                            Text("Повторить")
+                        }
                     }
                 }
-                else -> Text("Каталог пуст", modifier = Modifier.align(Alignment.Center))
+
+                else -> {
+                    Text(
+                        "Каталог пуст",
+                        modifier = Modifier.align(Alignment.Center))
+                }
             }
         }
     }

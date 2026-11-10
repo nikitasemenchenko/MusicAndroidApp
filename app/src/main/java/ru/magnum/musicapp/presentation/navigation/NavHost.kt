@@ -5,6 +5,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import ru.magnum.musicapp.presentation.catalog.CatalogScreen
+import ru.magnum.musicapp.presentation.player.PlayerScreen
 
 @Composable
 fun AppNavigation() {
@@ -15,7 +16,13 @@ fun AppNavigation() {
         startDestination = CatalogScreen
     ) {
         composable<CatalogScreen> {
-            CatalogScreen()
+            CatalogScreen(
+                toPlayerScreen = { navController.navigate(PlayerScreen) }
+            )
+        }
+
+        composable<PlayerScreen> {
+            PlayerScreen()
         }
     }
 }
