@@ -4,6 +4,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import androidx.core.content.ContextCompat
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
@@ -14,9 +15,11 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import ru.magnum.musicapp.data.mapper.toMediaItem
 import ru.magnum.musicapp.domain.model.Track
 import javax.inject.Inject
+import javax.inject.Singleton
 
 enum class PlayerConnectionStatus {
     CONNECTING,
@@ -24,6 +27,7 @@ enum class PlayerConnectionStatus {
     ERROR
 }
 
+@Singleton
 class PlayerConnection @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
@@ -35,6 +39,10 @@ class PlayerConnection @Inject constructor(
     private var controller: MediaController? = null
     private var connectionFuture: ListenableFuture<MediaController>? = null
     private var pendingPlayback: PendingPlayback? = null
+
+
+    private val _playbackState = MutableStateFlow(PlaybackState())
+    val  playbackState = _playbackState.asStateFlow()
 
     private var released = false
 
@@ -121,10 +129,47 @@ class PlayerConnection @Inject constructor(
 
                     try {
                         val connectedController = future.get()
-                        if (!connectedController.isConnected) {
-                            failConnection()
-                        } else {
+                        if (connectedController.isConnected) {
                             controller = connectedController
+
+
+                            // листенер чтобы слушать всякие изменения которые происходят
+                            // чтобы на ui обновлялся ползунок проигрывания, переключался трек
+                            connectedController.addListener(
+                                object : Player.Listener {
+
+                                    override fun onMediaItemTransition(
+                                        mediaItem: MediaItem?,
+                                        reason: Int
+                                    ) {
+                                        _playbackState.update {
+                                            it.copy(
+                                                currentTrackId = mediaItem?.mediaId
+                                            )
+                                        }
+                                        Log.d("PlayerTest", "Playing: ${playbackState.value.currentTrackId}")
+                                    }
+
+                                    override fun onIsPlayingChanged(isPlaying: Boolean) {
+                                        _playbackState.update {
+                                            it.copy(
+                                                isPlaying = isPlaying
+                                            )
+                                        }
+                                        Log.d("PlayerTest", "Playing - ${playbackState.value.isPlaying}")
+                                    }
+                                }
+                            )
+
+                            //надо считать начальное состояние потому что
+                            //мог быть какой-то трек сохранившийся в плеере до подключения
+                            _playbackState.update {
+                                it.copy(
+                                    currentTrackId = connectedController.currentMediaItem?.mediaId,
+                                    isPlaying = connectedController.isPlaying
+                                )
+                            }
+
                             val pending = pendingPlayback
                             if (pending == null) {
                                 _connectionStatus.value = PlayerConnectionStatus.CONNECTED
@@ -136,6 +181,8 @@ class PlayerConnection @Inject constructor(
                                     pending.currentPositionMs
                                 )
                             }
+                        } else {
+                            failConnection()
                         }
                     } catch (e: Exception) {
                         e.printStackTrace()

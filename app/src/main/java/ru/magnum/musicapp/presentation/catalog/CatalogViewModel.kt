@@ -91,9 +91,4 @@ class CatalogViewModel @Inject constructor(
     fun retryPlayerConnection() {
         playerConnection.retryConnection()
     }
-
-    override fun onCleared() {
-        playerConnection.release()
-        super.onCleared()
-    }
 }
