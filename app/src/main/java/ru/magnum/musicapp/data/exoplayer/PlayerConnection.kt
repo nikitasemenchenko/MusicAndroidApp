@@ -4,10 +4,11 @@ import android.content.ComponentName
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import androidx.core.content.ContextCompat
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
+import androidx.media3.common.Player.COMMAND_SEEK_TO_NEXT_MEDIA_ITEM
+import androidx.media3.common.Player.COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import com.google.common.util.concurrent.ListenableFuture
@@ -83,16 +84,6 @@ class PlayerConnection @Inject constructor(
         onMain { connect() }
     }
 
-    fun release() {
-        onMain {
-            if (released) return@onMain
-
-            released = true
-            pendingPlayback = null
-            releaseConnection()
-        }
-    }
-
     private fun connect() {
         if (released) return //  не пытаемся подключаться после освобождения объекта
 
@@ -108,7 +99,7 @@ class PlayerConnection @Inject constructor(
                         override fun onDisconnected(controller: MediaController) {
                             onMain {
                                 // сравниваем именно ссылки на объекты
-                                // проверка для того чтобы отключать правильный контроллер
+                                // проверка, для того чтобы отключать правильный контроллер
                                 if (this@PlayerConnection.controller === controller) {
                                     failConnection()
                                 }
@@ -122,7 +113,7 @@ class PlayerConnection @Inject constructor(
 
             // обработчик завершения
             // выполнится после завершения future
-            // воспроизведет трек который ждал подключения
+            // воспроизведет трек, который ждал подключения
             future.addListener(
                 {
                     if (released || connectionFuture !== future) return@addListener
@@ -147,7 +138,6 @@ class PlayerConnection @Inject constructor(
                                                 currentTrackId = mediaItem?.mediaId
                                             )
                                         }
-                                        Log.d("PlayerTest", "Playing: ${playbackState.value.currentTrackId}")
                                     }
 
                                     override fun onIsPlayingChanged(isPlaying: Boolean) {
@@ -156,7 +146,10 @@ class PlayerConnection @Inject constructor(
                                                 isPlaying = isPlaying
                                             )
                                         }
-                                        Log.d("PlayerTest", "Playing - ${playbackState.value.isPlaying}")
+                                    }
+
+                                    override fun onEvents(player: Player, events: Player.Events) {
+                                        updateSeekAvailability(player)
                                     }
                                 }
                             )
@@ -169,6 +162,7 @@ class PlayerConnection @Inject constructor(
                                     isPlaying = connectedController.isPlaying
                                 )
                             }
+                            updateSeekAvailability(connectedController)
 
                             val pending = pendingPlayback
                             if (pending == null) {
@@ -228,6 +222,69 @@ class PlayerConnection @Inject constructor(
         }
     }
 
+    fun togglePlayback(){
+        onMain {
+            if (released) return@onMain
+
+            if(playbackState.value.isPlaying){
+                controller?.pause()
+            } else {
+                controller?.play()
+            }
+        }
+    }
+
+    fun seekToNextTrack() {
+        onMain {
+            if (released) return@onMain
+
+            val player = controller ?: return@onMain
+
+            if (player.isCommandAvailable(
+                    COMMAND_SEEK_TO_NEXT_MEDIA_ITEM
+                )
+            ) {
+                player.seekToNextMediaItem()
+            }
+        }
+    }
+
+    fun seekToPreviousTrack() {
+        onMain {
+            if (released) return@onMain
+
+            val player = controller ?: return@onMain
+
+            if (player.isCommandAvailable(
+                    COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM
+                )
+            ) {
+                player.seekToPreviousMediaItem()
+            }
+        }
+    }
+
+    private fun updateSeekAvailability(player: Player) {
+        val canReadQueue = player.isCommandAvailable(
+            Player.COMMAND_GET_TIMELINE
+        )
+
+        val canNext = canReadQueue &&
+                player.isCommandAvailable(COMMAND_SEEK_TO_NEXT_MEDIA_ITEM) &&
+                player.hasNextMediaItem()
+
+        val canPrevious = canReadQueue &&
+                player.isCommandAvailable(COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM) &&
+                player.hasPreviousMediaItem()
+
+        _playbackState.update {
+            it.copy(
+                canSeekToNext = canNext,
+                canSeekToPrevious = canPrevious
+            )
+        }
+    }
+
     private fun failConnection() {
         if (released) return
         releaseConnection()
@@ -238,6 +295,16 @@ class PlayerConnection @Inject constructor(
         controller = null
         connectionFuture?.let { MediaController.releaseFuture(it) }
         connectionFuture = null
+    }
+
+    fun release() {
+        onMain {
+            if (released) return@onMain
+
+            released = true
+            pendingPlayback = null
+            releaseConnection()
+        }
     }
 
     // Обеспечивает выполнение на главном потоке

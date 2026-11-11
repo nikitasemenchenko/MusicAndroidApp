@@ -27,6 +27,18 @@ class PlayerViewModel @Inject constructor(
         observePlayback()
     }
 
+    fun togglePlayback(){
+        playerConnection.togglePlayback()
+    }
+
+    fun seekToNextTrack(){
+        playerConnection.seekToNextTrack()
+    }
+
+    fun seekToPreviousTrack(){
+        playerConnection.seekToPreviousTrack()
+    }
+
     private fun observePlayback() {
         viewModelScope.launch {
             playbackState
