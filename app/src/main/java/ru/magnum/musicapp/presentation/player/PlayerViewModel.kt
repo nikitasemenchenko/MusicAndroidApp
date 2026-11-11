@@ -39,6 +39,10 @@ class PlayerViewModel @Inject constructor(
         playerConnection.seekToPreviousTrack()
     }
 
+    fun seekTo(position: Long){
+        playerConnection.seekTo(position)
+    }
+
     private fun observePlayback() {
         viewModelScope.launch {
             playbackState

@@ -13,10 +13,3 @@ data class Track(
     val coverUrl: String?,
     val streamUrl: String
 )
-
-fun Track.getDurationString(): String{
-    val totalSec = durationMs / 1000
-    val min = totalSec / 60
-    val sec = totalSec % 60
-    return if(sec < 10) "$min:0$sec" else "$min:$sec"
-}

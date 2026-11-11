@@ -5,8 +5,10 @@ import android.content.Context
 import android.os.Handler
 import android.os.Looper
 import androidx.core.content.ContextCompat
+import androidx.media3.common.C
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
+import androidx.media3.common.Player.COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM
 import androidx.media3.common.Player.COMMAND_SEEK_TO_NEXT_MEDIA_ITEM
 import androidx.media3.common.Player.COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM
 import androidx.media3.session.MediaController
@@ -43,7 +45,24 @@ class PlayerConnection @Inject constructor(
 
 
     private val _playbackState = MutableStateFlow(PlaybackState())
-    val  playbackState = _playbackState.asStateFlow()
+    val playbackState = _playbackState.asStateFlow()
+
+    //Runnable объект, чтобы обновлять текущую позицию воспроизведения каждые 500 мс
+    private val positionUpdateRunnable = object : Runnable {
+        override fun run() {
+            val player = controller ?: return
+
+            if (released || !player.isPlaying) return
+
+            _playbackState.update {
+                it.copy(
+                    positionMs = player.currentPosition
+                )
+            }
+            mainHandler.postDelayed(this, 500L)
+        }
+
+    }
 
     private var released = false
 
@@ -56,9 +75,9 @@ class PlayerConnection @Inject constructor(
         index: Int,
         positionMs: Long
     ) {
-        require(tracks.isNotEmpty()) {"Track list must not be empty"}
+        require(tracks.isNotEmpty()) { "Track list must not be empty" }
         require(index in tracks.indices) { "Index out of bounds" }
-        require(positionMs >= 0) {"Position must not be negative"}
+        require(positionMs >= 0) { "Position must not be negative" }
         onMain {
             if (released) return@onMain
 
@@ -146,10 +165,26 @@ class PlayerConnection @Inject constructor(
                                                 isPlaying = isPlaying
                                             )
                                         }
+                                        if (isPlaying) startPositionUpdates()
+                                        else stopPositionUpdates()
+                                    }
+
+                                    // Нужно чтобы позиция обновлялась даже если музыка на паузе
+                                    override fun onPositionDiscontinuity(
+                                        oldPosition: Player.PositionInfo,
+                                        newPosition: Player.PositionInfo,
+                                        reason: Int
+                                    ) {
+                                        _playbackState.update {
+                                            it.copy(
+                                                positionMs = newPosition.positionMs
+                                            )
+                                        }
                                     }
 
                                     override fun onEvents(player: Player, events: Player.Events) {
                                         updateSeekAvailability(player)
+                                        updateDuration(player)
                                     }
                                 }
                             )
@@ -163,6 +198,9 @@ class PlayerConnection @Inject constructor(
                                 )
                             }
                             updateSeekAvailability(connectedController)
+                            updateDuration(connectedController)
+                            if (_playbackState.value.isPlaying) startPositionUpdates()
+
 
                             val pending = pendingPlayback
                             if (pending == null) {
@@ -196,7 +234,7 @@ class PlayerConnection @Inject constructor(
         items: List<MediaItem>,
         trackIndex: Int,
         positionMs: Long
-        ) {
+    ) {
         if (released || this.controller !== controller) return
 
         try {
@@ -222,11 +260,11 @@ class PlayerConnection @Inject constructor(
         }
     }
 
-    fun togglePlayback(){
+    fun togglePlayback() {
         onMain {
             if (released) return@onMain
 
-            if(playbackState.value.isPlaying){
+            if (playbackState.value.isPlaying) {
                 controller?.pause()
             } else {
                 controller?.play()
@@ -285,6 +323,46 @@ class PlayerConnection @Inject constructor(
         }
     }
 
+    private fun startPositionUpdates() {
+        // чтобы случайно не запустить несколько циклов обновления одновременно
+        mainHandler.removeCallbacks(positionUpdateRunnable)
+
+        mainHandler.post(positionUpdateRunnable)
+    }
+
+    private fun stopPositionUpdates() {
+        mainHandler.removeCallbacks(positionUpdateRunnable)
+    }
+
+    private fun updateDuration(player: Player) {
+        if (released) return
+
+        val duration = player.duration
+
+        _playbackState.update {
+            it.copy(
+                durationMs = if (duration == C.TIME_UNSET) {
+                    null
+                } else {
+                    duration
+                }
+            )
+        }
+    }
+
+    fun seekTo(position: Long) {
+        onMain {
+            if (released) return@onMain
+            val player = controller ?: return@onMain
+            if (player.isCommandAvailable(
+                    COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM
+                )
+            ) {
+                player.seekTo(position)
+            }
+        }
+    }
+
     private fun failConnection() {
         if (released) return
         releaseConnection()
@@ -292,6 +370,8 @@ class PlayerConnection @Inject constructor(
     }
 
     private fun releaseConnection() {
+        stopPositionUpdates()
+
         controller = null
         connectionFuture?.let { MediaController.releaseFuture(it) }
         connectionFuture = null
