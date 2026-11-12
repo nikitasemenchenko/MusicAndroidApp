@@ -186,6 +186,21 @@ class PlayerConnection @Inject constructor(
                                         updateSeekAvailability(player)
                                         updateDuration(player)
                                     }
+
+                                    override fun onPlaybackStateChanged(playbackState: Int) {
+                                        _playbackState.update {
+                                            it.copy(
+                                                isBuffering = playbackState == Player.STATE_BUFFERING
+                                            )
+                                        }
+                                    }
+
+                                    override fun onPlayWhenReadyChanged(
+                                        playWhenReady: Boolean,
+                                        reason: Int
+                                    ) {
+                                        _playbackState.update { it.copy(playWhenReady = playWhenReady) }
+                                    }
                                 }
                             )
 
@@ -194,7 +209,9 @@ class PlayerConnection @Inject constructor(
                             _playbackState.update {
                                 it.copy(
                                     currentTrackId = connectedController.currentMediaItem?.mediaId,
-                                    isPlaying = connectedController.isPlaying
+                                    isPlaying = connectedController.isPlaying,
+                                    isBuffering = connectedController.playbackState == Player.STATE_BUFFERING,
+                                    playWhenReady = connectedController.playWhenReady
                                 )
                             }
                             updateSeekAvailability(connectedController)
@@ -263,11 +280,11 @@ class PlayerConnection @Inject constructor(
     fun togglePlayback() {
         onMain {
             if (released) return@onMain
-
-            if (playbackState.value.isPlaying) {
-                controller?.pause()
+            val player = controller ?: return@onMain
+            if (player.playWhenReady) {
+                player.pause()
             } else {
-                controller?.play()
+                player.play()
             }
         }
     }

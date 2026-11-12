@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -33,12 +34,10 @@ fun PlayerScreen(
     var sliderPosition by remember { mutableFloatStateOf(0f) }
     val durationMs = playbackState.durationMs?.takeIf { it > 0L }
 
-    val displayPosition = if (isDragging) {
-        sliderPosition
-    } else {
-        playbackState.positionMs.toFloat()
-    }
-    displayPosition.coerceIn(0f, durationMs?.toFloat() ?: 0f)
+    val displayPosition = (
+            if (isDragging) sliderPosition
+            else playbackState.positionMs.toFloat()
+            ).coerceIn(0f, durationMs?.toFloat() ?: 0f)
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -92,9 +91,13 @@ fun PlayerScreen(
             Button(
                 onClick = viewModel::togglePlayback
             ) {
-                Text(
-                    if (playbackState.isPlaying) "Pause" else "Play"
-                )
+                if(playbackState.isBuffering){
+                    CircularProgressIndicator()
+                } else {
+                    Text(
+                        if (playbackState.playWhenReady) "Pause" else "Play"
+                    )
+                }
             }
             Button(
                 onClick = viewModel::seekToNextTrack,
