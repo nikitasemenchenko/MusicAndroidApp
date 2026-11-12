@@ -1,4 +1,4 @@
-# Music Streaming App (Android)
+# Music Streaming App
 
 Android client for a music streaming service.  
 Browse the catalog, view track details, stream audio and control playback from the notification shade or lock screen.
@@ -46,12 +46,22 @@ The app works with a companion backend (`music-backend`) that provides track met
 ## Architecture Overview
 
 ```
-┌─────────────────┐       ┌──────────────────┐       ┌─────────────────┐
-│  Android App    │──────▶│  music-backend   │──────▶│   PostgreSQL    │
-│  (Compose)      │       │  (Ktor)          │       │                 │
-│                 │◀──────│                  │◀──────│                 │
-│  Room cache     │       │  Audio storage   │       │                 │
-└─────────────────┘       └──────────────────┘       └─────────────────┘
+┌────────────────────────┐
+│     Android App        │
+│  (Compose + Room)      │
+└───────────┬────────────┘
+            │
+            │  REST API
+            │  HTTP Range Requests
+            ▼
+┌────────────────────────┐
+│    music-backend       │
+│       (Ktor)           │
+└───────┬────────┬───────┘
+        │        │
+        ▼        ▼
+  PostgreSQL   Audio Storage
+  (metadata)   (mp3 files)
 ```
 
 - Catalog and track metadata are first loaded from Room.
