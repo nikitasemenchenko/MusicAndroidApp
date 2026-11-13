@@ -8,5 +8,6 @@ data class PlaybackState(
     val positionMs: Long = 0L,
     val durationMs: Long? = null,
     val canSeekToNext: Boolean = false,
-    val canSeekToPrevious: Boolean = false
+    val canSeekToPrevious: Boolean = false,
+    val errorMessage: String? = null
 )

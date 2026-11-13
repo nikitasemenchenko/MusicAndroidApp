@@ -7,6 +7,7 @@ import android.os.Looper
 import androidx.core.content.ContextCompat
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
+import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
 import androidx.media3.common.Player.COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM
 import androidx.media3.common.Player.COMMAND_SEEK_TO_NEXT_MEDIA_ITEM
@@ -190,7 +191,12 @@ class PlayerConnection @Inject constructor(
                                     override fun onPlaybackStateChanged(playbackState: Int) {
                                         _playbackState.update {
                                             it.copy(
-                                                isBuffering = playbackState == Player.STATE_BUFFERING
+                                                isBuffering = playbackState == Player.STATE_BUFFERING,
+                                                errorMessage = if (playbackState == Player.STATE_READY) {
+                                                    null
+                                                } else {
+                                                    it.errorMessage
+                                                }
                                             )
                                         }
                                     }
@@ -200,6 +206,12 @@ class PlayerConnection @Inject constructor(
                                         reason: Int
                                     ) {
                                         _playbackState.update { it.copy(playWhenReady = playWhenReady) }
+                                    }
+
+                                    override fun onPlayerError(error: PlaybackException) {
+                                        _playbackState.update {
+                                            it.copy(errorMessage = error.message)
+                                        }
                                     }
                                 }
                             )
