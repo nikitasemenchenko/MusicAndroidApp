@@ -28,7 +28,7 @@ import ru.magnum.musicapp.presentation.components.toStringRes
 
 @Composable
 fun PlayerScreen(
-    viewModel: PlayerViewModel = hiltViewModel()
+    viewModel: PlayerViewModel
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val playbackState by viewModel.playbackState.collectAsStateWithLifecycle()

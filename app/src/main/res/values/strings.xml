@@ -8,5 +8,8 @@
     <string name="playback_error_timeout">Сервер не отвечает</string>
     <string name="playback_error_unknown">Не удалось воспроизвести композицию</string>
 
-
+    <string name="cover_content_description">Обложка музыкального трека</string>
+    <string name="skip_previous_content_description">Предыдущий трек</string>
+    <string name="play_pause_content_description">Воспроизвести или пауза</string>
+    <string name="skip_next_content_description">Следующий трек</string>
 </resources>

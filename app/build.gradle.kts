@@ -104,4 +104,7 @@ dependencies {
     implementation(libs.coil)
     implementation(libs.coil.compose)
     implementation(libs.coil.network)
+    //Icons
+    implementation(libs.androidx.compose.material.icons.extended)
+
 }

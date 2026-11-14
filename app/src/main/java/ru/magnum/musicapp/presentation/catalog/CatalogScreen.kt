@@ -25,15 +25,12 @@ import ru.magnum.musicapp.data.exoplayer.PlayerConnectionStatus
 
 @Composable
 fun CatalogScreen(
-    viewModel: CatalogViewModel = hiltViewModel(),
-    toPlayerScreen: () -> Unit
+    viewModel: CatalogViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.state.collectAsStateWithLifecycle()
     val playerConnectionStatus by viewModel.playerConnectionStatus.collectAsStateWithLifecycle()
 
-    Column(
-        modifier = Modifier.fillMaxSize()
-    ) {
+    Column {
         if (playerConnectionStatus == PlayerConnectionStatus.CONNECTING) {
             Text(
                 "Подключение к плееру…",
@@ -61,9 +58,11 @@ fun CatalogScreen(
         if (uiState.isSyncing && uiState.tracks.isNotEmpty()) {
             LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
         }
-        Box(modifier = Modifier
-            .weight(1f)
-            .fillMaxWidth()) {
+        Box(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth()
+        ) {
             when {
                 uiState.tracks.isNotEmpty() ->
                     LazyColumn(
@@ -87,7 +86,6 @@ fun CatalogScreen(
                                             uiState.tracks,
                                             index
                                         )
-                                        toPlayerScreen()
                                     }
                             ) {
                                 Text(
@@ -103,6 +101,7 @@ fun CatalogScreen(
                         modifier = Modifier.align(Alignment.Center)
                     )
                 }
+
                 uiState.errorMessage != null -> {
                     Column(
                         modifier = Modifier
@@ -127,7 +126,8 @@ fun CatalogScreen(
                 else -> {
                     Text(
                         "Каталог пуст",
-                        modifier = Modifier.align(Alignment.Center))
+                        modifier = Modifier.align(Alignment.Center)
+                    )
                 }
             }
         }
