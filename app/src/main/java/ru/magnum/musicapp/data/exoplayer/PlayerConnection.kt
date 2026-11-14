@@ -81,7 +81,9 @@ class PlayerConnection @Inject constructor(
         require(positionMs >= 0) { "Position must not be negative" }
         onMain {
             if (released) return@onMain
-
+            _playbackState.update {
+                it.copy(error = null)
+            }
             val mediaItems = tracks.map { it.toMediaItem() }
 
             pendingPlayback = PendingPlayback(
@@ -192,10 +194,10 @@ class PlayerConnection @Inject constructor(
                                         _playbackState.update {
                                             it.copy(
                                                 isBuffering = playbackState == Player.STATE_BUFFERING,
-                                                errorMessage = if (playbackState == Player.STATE_READY) {
+                                                error = if (playbackState == Player.STATE_READY) {
                                                     null
                                                 } else {
-                                                    it.errorMessage
+                                                    it.error
                                                 }
                                             )
                                         }
@@ -210,7 +212,7 @@ class PlayerConnection @Inject constructor(
 
                                     override fun onPlayerError(error: PlaybackException) {
                                         _playbackState.update {
-                                            it.copy(errorMessage = error.message)
+                                            it.copy(error = error.toPlaybackError())
                                         }
                                     }
                                 }
@@ -292,9 +294,30 @@ class PlayerConnection @Inject constructor(
     fun togglePlayback() {
         onMain {
             if (released) return@onMain
+
             val player = controller ?: return@onMain
-            if (player.playWhenReady) {
+
+            if (!player.isCommandAvailable(Player.COMMAND_PLAY_PAUSE)) {
+                return@onMain
+            }
+
+            //если есть ошибка
+            if (player.playerError != null) {
+                //Сначала проверяется, доступна ли команда перезапуска
+                if (!player.isCommandAvailable(Player.COMMAND_PREPARE)) {
+                    return@onMain
+                }
+                //если она доступна то сбрасываем ошибку и перезапускаем
+                _playbackState.update { it.copy(error = null) }
+
+                player.prepare()
+                player.play()
+
+                //если ошибки нет то и плеер играет или готовится играть
+            } else if (player.playWhenReady) {
                 player.pause()
+
+            //если нет ошибки и плеер не играл
             } else {
                 player.play()
             }

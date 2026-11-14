@@ -19,10 +19,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import ru.magnum.musicapp.data.mapper.getDurationString
+import ru.magnum.musicapp.presentation.components.toStringRes
 
 @Composable
 fun PlayerScreen(
@@ -60,9 +62,9 @@ fun PlayerScreen(
             Text(getDurationString(playbackState.positionMs))
             Text(getDurationString(playbackState.durationMs))
         }
-        playbackState.errorMessage?.let {
+        playbackState.error?.let {
             Text(
-                text = it,
+                text = stringResource(it.toStringRes()),
                 color = MaterialTheme.colorScheme.error
             )
         }
@@ -102,7 +104,11 @@ fun PlayerScreen(
                     CircularProgressIndicator()
                 } else {
                     Text(
-                        if (playbackState.playWhenReady) "Pause" else "Play"
+                        if (playbackState.error != null || !playbackState.playWhenReady) {
+                            "Play"
+                        } else {
+                            "Pause"
+                        }
                     )
                 }
             }

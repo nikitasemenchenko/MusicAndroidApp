@@ -9,5 +9,5 @@ data class PlaybackState(
     val durationMs: Long? = null,
     val canSeekToNext: Boolean = false,
     val canSeekToPrevious: Boolean = false,
-    val errorMessage: String? = null
+    val error: PlaybackError? = null
 )

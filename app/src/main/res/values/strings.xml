@@ -1,3 +1,12 @@
 <resources>
     <string name="app_name">MusicApp</string>
+
+    <!--Ошибки-->
+    <string name="playback_error_network">Нет подключения к серверу</string>
+    <string name="playback_error_file_not_found">Ошибка доступа к аудиофайлу</string>
+    <string name="playback_error_http">Ошибка сервера при загрузке аудио</string>
+    <string name="playback_error_timeout">Сервер не отвечает</string>
+    <string name="playback_error_unknown">Не удалось воспроизвести композицию</string>
+
+
 </resources>
