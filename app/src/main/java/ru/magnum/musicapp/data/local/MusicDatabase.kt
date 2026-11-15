@@ -20,7 +20,7 @@ import ru.magnum.musicapp.data.local.model.TracksTable
         TrackAlbumsTable::class,
         TrackGenresTable::class
     ],
-    version = 1
+    version = 2
 )
 abstract class MusicDatabase: RoomDatabase() {
     abstract fun musicDao(): MusicDao

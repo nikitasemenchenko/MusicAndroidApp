@@ -32,8 +32,19 @@ class TracksRepositoryImpl @Inject constructor(
         return musicDao.getTracks().map { list -> list.mapNotNull { it.toDomain() } }
     }
 
+    //Сервер — источник правды: всё, чего нет в ответе (в том числе при пустом ответе), удаляется из кэша
     private suspend fun saveTracks(response: List<TrackResponse>) {
         val tracksDto = response.filter { resolveUrl(it.streamUrl) != null }
+
+        database.withTransaction {
+            musicDao.deleteTracksNotIn(tracksDto.map { it.id })
+            upsertTracksWithRelations(tracksDto)
+            deleteOrphans()
+        }
+    }
+
+    //Должна вызываться внутри database.withTransaction
+    private suspend fun upsertTracksWithRelations(tracksDto: List<TrackResponse>) {
         if (tracksDto.isEmpty()) return
 
         val tracksTables = tracksDto.map { it.toEntity() }
@@ -59,25 +70,30 @@ class TracksRepositoryImpl @Inject constructor(
             }
         }.distinct()
 
-        database.withTransaction {
-            musicDao.clearTrackArtists()
-            musicDao.clearTrackAlbums()
-            musicDao.clearTrackGenres()
-            musicDao.clearTracks()
-            musicDao.clearArtists()
-            musicDao.clearAlbums()
-            musicDao.clearGenres()
+        //Сначала родители, потом трек и только потом связи, иначе упадут внешние ключи
+        if (artistsTables.isNotEmpty()) musicDao.upsertArtists(artistsTables)
+        if (albumsTables.isNotEmpty()) musicDao.upsertAlbums(albumsTables)
+        if (genresTables.isNotEmpty()) musicDao.upsertGenres(genresTables)
 
-            if (artistsTables.isNotEmpty()) musicDao.insertArtists(artistsTables)
-            if (albumsTables.isNotEmpty()) musicDao.insertAlbums(albumsTables)
-            if (genresTables.isNotEmpty()) musicDao.insertGenres(genresTables)
+        musicDao.upsertTracks(tracksTables)
 
-            if (tracksTables.isNotEmpty()) musicDao.insertTracks(tracksTables)
-
-            if (trackArtistsTables.isNotEmpty()) musicDao.insertTrackArtists(trackArtistsTables)
-            if (trackAlbumsTables.isNotEmpty()) musicDao.insertTrackAlbums(trackAlbumsTables)
-            if (trackGenresTables.isNotEmpty()) musicDao.insertTrackGenres(trackGenresTables)
+        //Upsert не трогает связи, поэтому старые связи заменяем явно: состав артистов/альбомов/жанров мог измениться
+        tracksDto.forEach { track ->
+            musicDao.deleteTrackArtists(track.id)
+            musicDao.deleteTrackAlbums(track.id)
+            musicDao.deleteTrackGenres(track.id)
         }
+
+        if (trackArtistsTables.isNotEmpty()) musicDao.insertTrackArtists(trackArtistsTables)
+        if (trackAlbumsTables.isNotEmpty()) musicDao.insertTrackAlbums(trackAlbumsTables)
+        if (trackGenresTables.isNotEmpty()) musicDao.insertTrackGenres(trackGenresTables)
+    }
+
+    //Должна вызываться внутри database.withTransaction
+    private suspend fun deleteOrphans() {
+        musicDao.deleteOrphanArtists()
+        musicDao.deleteOrphanAlbums()
+        musicDao.deleteOrphanGenres()
     }
 
     override suspend fun getTrack(id: Int): Track? {

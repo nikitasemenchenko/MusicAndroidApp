@@ -5,6 +5,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
+import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
 import ru.magnum.musicapp.data.local.model.AlbumsTable
 import ru.magnum.musicapp.data.local.model.ArtistsTable
@@ -25,17 +26,18 @@ interface MusicDao {
     @Query("SELECT * FROM tracks WHERE id = :id")
     suspend fun getTrack(id: Int): FullTrackInfo?
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertTracks(tracks: List<TracksTable>)
+    //Upsert = INSERT, а при конфликте по ключу UPDATE. Строка не удаляется, поэтому CASCADE и RESTRICT не срабатывают
+    @Upsert
+    suspend fun upsertTracks(tracks: List<TracksTable>)
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insertArtists(artists: List<ArtistsTable>)
+    @Upsert
+    suspend fun upsertArtists(artists: List<ArtistsTable>)
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insertAlbums(albums: List<AlbumsTable>)
+    @Upsert
+    suspend fun upsertAlbums(albums: List<AlbumsTable>)
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insertGenres(genres: List<GenresTable>)
+    @Upsert
+    suspend fun upsertGenres(genres: List<GenresTable>)
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertTrackArtists(links: List<TrackArtistsTable>)
@@ -46,24 +48,26 @@ interface MusicDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertTrackGenres(links: List<TrackGenresTable>)
 
-    @Query("DELETE FROM track_artists")
-    suspend fun clearTrackArtists()
+    @Query("DELETE FROM track_artists WHERE track_id = :trackId")
+    suspend fun deleteTrackArtists(trackId: Int)
 
-    @Query("DELETE FROM track_albums")
-    suspend fun clearTrackAlbums()
+    @Query("DELETE FROM track_albums WHERE track_id = :trackId")
+    suspend fun deleteTrackAlbums(trackId: Int)
 
-    @Query("DELETE FROM track_genres")
-    suspend fun clearTrackGenres()
+    @Query("DELETE FROM track_genres WHERE track_id = :trackId")
+    suspend fun deleteTrackGenres(trackId: Int)
 
-    @Query("DELETE FROM tracks")
-    suspend fun clearTracks()
+    //Связи удалённых треков удалит CASCADE
+    @Query("DELETE FROM tracks WHERE id NOT IN (:ids)")
+    suspend fun deleteTracksNotIn(ids: List<Int>)
 
-    @Query("DELETE FROM artists")
-    suspend fun clearArtists()
+    //Удаляем только записи, на которые больше никто не ссылается, поэтому RESTRICT не мешает
+    @Query("DELETE FROM artists WHERE id NOT IN (SELECT artist_id FROM track_artists)")
+    suspend fun deleteOrphanArtists()
 
-    @Query("DELETE FROM albums")
-    suspend fun clearAlbums()
+    @Query("DELETE FROM albums WHERE id NOT IN (SELECT album_id FROM track_albums)")
+    suspend fun deleteOrphanAlbums()
 
-    @Query("DELETE FROM genres")
-    suspend fun clearGenres()
+    @Query("DELETE FROM genres WHERE id NOT IN (SELECT genre_id FROM track_genres)")
+    suspend fun deleteOrphanGenres()
 }

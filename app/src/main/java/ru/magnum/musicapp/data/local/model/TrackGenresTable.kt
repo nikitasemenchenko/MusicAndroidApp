@@ -3,9 +3,11 @@ package ru.magnum.musicapp.data.local.model
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.Index
 
 @Entity(tableName = "track_genres",
     primaryKeys = ["track_id", "genre_id"],
+    indices = [Index("genre_id")],
     foreignKeys = [
         ForeignKey(
             entity = TracksTable::class,
