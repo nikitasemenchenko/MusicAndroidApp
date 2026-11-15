@@ -23,6 +23,7 @@ class CatalogViewModel @Inject constructor(
     private val _state = MutableStateFlow(CatalogUIState())
     val state = _state.asStateFlow()
     val playerConnectionStatus = playerConnection.connectionStatus
+    val playbackState = playerConnection.playbackState
 
     private var tracksJob: Job? = null
     private var syncJob: Job? = null
@@ -76,16 +77,15 @@ class CatalogViewModel @Inject constructor(
         }
     }
 
-    fun play(
-        tracks: List<Track>,
-        index: Int,
-        position: Long = 0
-        ) {
-        playerConnection.playTrack(
-            tracks,
-            index,
-            position
-        )
+    fun onTrackClick(index: Int) {
+        val tracks = _state.value.tracks
+        val track = tracks.getOrNull(index) ?: return
+
+        if (playbackState.value.currentTrackId == track.id.toString()) {
+            playerConnection.togglePlayback()
+        } else {
+            playerConnection.playTrack(tracks, index, 0L)
+        }
     }
 
     fun retryPlayerConnection() {

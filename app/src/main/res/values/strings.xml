@@ -12,4 +12,20 @@
     <string name="skip_previous_content_description">Предыдущий трек</string>
     <string name="play_pause_content_description">Воспроизвести или пауза</string>
     <string name="skip_next_content_description">Следующий трек</string>
+
+    <string name="track_info_title">Информация о треке</string>
+    <string name="navigate_back">Назад</string>
+    <string name="track_info_not_found">Трек не найден</string>
+    <string name="track_info_load_failed">Не удалось загрузить информацию о треке</string>
+    <string name="track_info_unknown_value">Не указано</string>
+    <string name="track_info_track_subtitle">%1$s · %2$s</string>
+    <string name="track_info_artist">Исполнитель</string>
+    <string name="track_info_album">Альбом</string>
+    <string name="track_info_genres">Жанры</string>
+    <string name="track_info_release_date">Дата выпуска</string>
+    <string name="play_track">Воспроизвести</string>
+    <string name="retry">Повторить</string>
+    <string name="player_collapse">Свернуть плеер</string>
+    <string name="more_options">Дополнительные действия</string>
+    <string name="track_details">Детали трека</string>
 </resources>

@@ -7,3 +7,8 @@ object CatalogScreen
 
 @Serializable
 object PlayerScreen
+
+@Serializable
+data class TrackInfoScreen(
+    val id: Int
+)

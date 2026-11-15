@@ -18,6 +18,7 @@ import ru.magnum.musicapp.presentation.catalog.CatalogScreen
 import ru.magnum.musicapp.presentation.components.MiniPlayer
 import ru.magnum.musicapp.presentation.player.PlayerScreen
 import ru.magnum.musicapp.presentation.player.PlayerViewModel
+import ru.magnum.musicapp.presentation.trackInfo.TrackInfoScreen
 
 @Composable
 fun AppNavigation() {
@@ -63,7 +64,17 @@ fun AppNavigation() {
 
             composable<PlayerScreen> {
                 PlayerScreen(
-                    playerViewModel
+                    viewModel = playerViewModel,
+                    onCollapse = { navController.popBackStack() },
+                    onOpenTrackInfo = { trackId ->
+                        navController.navigate(TrackInfoScreen(trackId))
+                    }
+                )
+            }
+
+            composable<TrackInfoScreen> {
+                TrackInfoScreen(
+                    onBack = { navController.popBackStack() }
                 )
             }
         }
