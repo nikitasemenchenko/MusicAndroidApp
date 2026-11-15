@@ -117,12 +117,6 @@ fun PlayerScreen(
                 Text(getDurationString(playbackState.positionMs))
                 Text(getDurationString(playbackState.durationMs))
             }
-            playbackState.error?.let {
-                Text(
-                    text = stringResource(it.toStringRes()),
-                    color = MaterialTheme.colorScheme.error
-                )
-            }
 
             Slider(
                 value = displayPosition,

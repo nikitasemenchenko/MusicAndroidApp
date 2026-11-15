@@ -43,6 +43,9 @@ fun MiniPlayer(
                 .coerceIn(0f, 1f)
         } ?: 0f
 
+    val error = playbackState.error
+    val isPlaying = playbackState.playWhenReady && error == null
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -97,7 +100,7 @@ fun MiniPlayer(
                     },
                 ) {
                     Icon(
-                        imageVector = if (playbackState.playWhenReady) {
+                        imageVector = if (isPlaying) {
                             Icons.Default.Pause
                         } else {
                             Icons.Default.PlayArrow

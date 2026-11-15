@@ -4,6 +4,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import androidx.core.content.ContextCompat
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
@@ -211,6 +212,7 @@ class PlayerConnection @Inject constructor(
                                     }
 
                                     override fun onPlayerError(error: PlaybackException) {
+                                        Log.d("PlaybackError", "code=${error.errorCode} cause=${error.cause?.javaClass}")
                                         _playbackState.update {
                                             it.copy(error = error.toPlaybackError())
                                         }
