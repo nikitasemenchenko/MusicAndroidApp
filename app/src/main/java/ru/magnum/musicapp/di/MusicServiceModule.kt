@@ -1,5 +1,6 @@
 package ru.magnum.musicapp.di
 
+import android.app.PendingIntent
 import android.content.Context
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
@@ -33,6 +34,7 @@ object MusicServiceModule {
     ): ExoPlayer = ExoPlayer.Builder(context)
         .setAudioAttributes(audioAttributes, true)
         .setHandleAudioBecomingNoisy(true)
+        .setWakeMode(C.WAKE_MODE_NETWORK)
         .build()
 
     @Provides
@@ -40,5 +42,15 @@ object MusicServiceModule {
     fun provideMediaSession(
         @ApplicationContext context: Context,
         player: ExoPlayer
-    ): MediaSession = MediaSession.Builder(context, player).build()
+    ): MediaSession {
+        val launchIntent = context.packageManager
+            .getLaunchIntentForPackage(context.packageName)!!
+        val sessionActivity = PendingIntent.getActivity(
+            context, 0, launchIntent,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        )
+        return MediaSession.Builder(context, player)
+            .setSessionActivity(sessionActivity)
+            .build()
+    }
 }
