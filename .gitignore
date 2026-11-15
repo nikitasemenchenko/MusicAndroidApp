@@ -1,6 +1,7 @@
 *.iml
 .gradle
 .kotlin/
+.junie/
 .awb/
 /local.properties
 /.idea/
