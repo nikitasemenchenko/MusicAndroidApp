@@ -26,6 +26,10 @@ interface MusicDao {
     @Query("SELECT * FROM tracks WHERE id = :id")
     suspend fun getTrack(id: Int): FullTrackInfo?
 
+    @Transaction
+    @Query("SELECT * FROM tracks WHERE id = :id")
+    fun observeTrack(id: Int): Flow<FullTrackInfo?>
+
     //Upsert = INSERT, а при конфликте по ключу UPDATE. Строка не удаляется, поэтому CASCADE и RESTRICT не срабатывают
     @Upsert
     suspend fun upsertTracks(tracks: List<TracksTable>)
@@ -60,6 +64,9 @@ interface MusicDao {
     //Связи удалённых треков удалит CASCADE
     @Query("DELETE FROM tracks WHERE id NOT IN (:ids)")
     suspend fun deleteTracksNotIn(ids: List<Int>)
+
+    @Query("DELETE FROM tracks WHERE id = :id")
+    suspend fun deleteTrack(id: Int)
 
     //Удаляем только записи, на которые больше никто не ссылается, поэтому RESTRICT не мешает
     @Query("DELETE FROM artists WHERE id NOT IN (SELECT artist_id FROM track_artists)")

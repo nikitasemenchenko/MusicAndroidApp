@@ -2,6 +2,7 @@ package ru.magnum.musicapp.data.repository
 
 import androidx.room.withTransaction
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import ru.magnum.musicapp.data.local.MusicDao
 import ru.magnum.musicapp.data.local.MusicDatabase
@@ -14,7 +15,9 @@ import ru.magnum.musicapp.data.mapper.toEntity
 import ru.magnum.musicapp.data.remote.api.MusicApi
 import ru.magnum.musicapp.data.remote.dto.TrackResponse
 import ru.magnum.musicapp.domain.model.Track
+import ru.magnum.musicapp.domain.repository.TrackNotFoundException
 import ru.magnum.musicapp.domain.repository.TracksRepository
+import retrofit2.HttpException
 import javax.inject.Inject
 
 class TracksRepositoryImpl @Inject constructor(
@@ -98,6 +101,39 @@ class TracksRepositoryImpl @Inject constructor(
 
     override suspend fun getTrack(id: Int): Track? {
         return musicDao.getTrack(id)?.toDomain()
+    }
+
+    override fun observeTrack(id: Int): Flow<Track?> {
+        return musicDao.observeTrack(id)
+            .map { it?.toDomain() }
+            .distinctUntilChanged()
+    }
+
+    override suspend fun refreshTrack(id: Int) {
+        val trackDto = try {
+            musicApi.getTrack(id)
+        } catch (exception: HttpException) {
+            if (exception.code() != 404) throw exception
+            deleteTrackAndOrphans(id)
+            throw TrackNotFoundException(id)
+        }
+
+        if (resolveUrl(trackDto.streamUrl) == null) {
+            deleteTrackAndOrphans(id)
+            throw TrackNotFoundException(id)
+        }
+
+        database.withTransaction {
+            upsertTracksWithRelations(listOf(trackDto))
+            deleteOrphans()
+        }
+    }
+
+    private suspend fun deleteTrackAndOrphans(id: Int) {
+        database.withTransaction {
+            musicDao.deleteTrack(id)
+            deleteOrphans()
+        }
     }
 
 }
