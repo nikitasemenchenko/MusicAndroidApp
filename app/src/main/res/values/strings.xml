@@ -28,4 +28,7 @@
     <string name="player_collapse">Свернуть плеер</string>
     <string name="more_options">Дополнительные действия</string>
     <string name="track_details">Детали трека</string>
+    <string name="action_retry">Повторить</string>
+
+
 </resources>
