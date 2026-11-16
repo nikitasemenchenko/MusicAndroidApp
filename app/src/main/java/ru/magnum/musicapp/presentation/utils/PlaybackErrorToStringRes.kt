@@ -1,4 +1,4 @@
-package ru.magnum.musicapp.presentation.components
+package ru.magnum.musicapp.presentation.utils
 
 import androidx.annotation.StringRes
 import ru.magnum.musicapp.R

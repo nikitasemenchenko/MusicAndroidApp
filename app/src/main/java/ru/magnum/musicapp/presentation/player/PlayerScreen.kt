@@ -18,7 +18,6 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
@@ -34,8 +33,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import ru.magnum.musicapp.R
-import ru.magnum.musicapp.data.mapper.getDurationString
-import ru.magnum.musicapp.presentation.components.toStringRes
+import ru.magnum.musicapp.presentation.utils.getDurationString
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

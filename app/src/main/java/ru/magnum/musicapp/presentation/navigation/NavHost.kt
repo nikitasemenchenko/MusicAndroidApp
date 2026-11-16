@@ -24,7 +24,7 @@ import androidx.navigation.compose.rememberNavController
 import ru.magnum.musicapp.R
 import ru.magnum.musicapp.presentation.catalog.CatalogScreen
 import ru.magnum.musicapp.presentation.components.MiniPlayer
-import ru.magnum.musicapp.presentation.components.toStringRes
+import ru.magnum.musicapp.presentation.utils.toStringRes
 import ru.magnum.musicapp.presentation.player.PlayerScreen
 import ru.magnum.musicapp.presentation.player.PlayerViewModel
 import ru.magnum.musicapp.presentation.trackInfo.TrackInfoScreen
