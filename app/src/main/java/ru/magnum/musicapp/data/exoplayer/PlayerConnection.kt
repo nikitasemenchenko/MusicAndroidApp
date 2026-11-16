@@ -22,24 +22,20 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import ru.magnum.musicapp.data.mapper.toMediaItem
+import ru.magnum.musicapp.domain.model.PlaybackState
+import ru.magnum.musicapp.domain.model.PlayerConnectionStatus
 import ru.magnum.musicapp.domain.model.Track
+import ru.magnum.musicapp.domain.player.MusicPlayer
 import javax.inject.Inject
-import javax.inject.Singleton
 
-enum class PlayerConnectionStatus {
-    CONNECTING,
-    CONNECTED,
-    ERROR
-}
-
-@Singleton
 class PlayerConnection @Inject constructor(
     @ApplicationContext private val context: Context
-) {
+) : MusicPlayer {
     private val mainHandler = Handler(Looper.getMainLooper())
     private val _connectionStatus = MutableStateFlow(PlayerConnectionStatus.CONNECTING)
 
-    val connectionStatus: StateFlow<PlayerConnectionStatus> = _connectionStatus.asStateFlow()
+    override val connectionStatus: StateFlow<PlayerConnectionStatus> =
+        _connectionStatus.asStateFlow()
 
     private var controller: MediaController? = null
     private var connectionFuture: ListenableFuture<MediaController>? = null
@@ -47,7 +43,7 @@ class PlayerConnection @Inject constructor(
 
 
     private val _playbackState = MutableStateFlow(PlaybackState())
-    val playbackState = _playbackState.asStateFlow()
+    override val playbackState = _playbackState.asStateFlow()
 
     //Runnable объект, чтобы обновлять текущую позицию воспроизведения каждые 500 мс
     private val positionUpdateRunnable = object : Runnable {
@@ -72,7 +68,7 @@ class PlayerConnection @Inject constructor(
         onMain { connect() }
     }
 
-    fun playTrack(
+    override fun playTrack(
         tracks: List<Track>,
         index: Int,
         positionMs: Long
@@ -103,7 +99,7 @@ class PlayerConnection @Inject constructor(
         }
     }
 
-    fun retryConnection() {
+    override fun retryConnection() {
         onMain { connect() }
     }
 
@@ -212,7 +208,10 @@ class PlayerConnection @Inject constructor(
                                     }
 
                                     override fun onPlayerError(error: PlaybackException) {
-                                        Log.d("PlaybackError", "code=${error.errorCode} cause=${error.cause?.javaClass}")
+                                        Log.d(
+                                            "PlaybackError",
+                                            "code=${error.errorCode} cause=${error.cause?.javaClass}"
+                                        )
                                         _playbackState.update {
                                             it.copy(error = error.toPlaybackError())
                                         }
@@ -293,7 +292,7 @@ class PlayerConnection @Inject constructor(
         }
     }
 
-    fun togglePlayback() {
+    override fun togglePlayback() {
         onMain {
             if (released) return@onMain
 
@@ -309,24 +308,24 @@ class PlayerConnection @Inject constructor(
                 if (!player.isCommandAvailable(Player.COMMAND_PREPARE)) {
                     return@onMain
                 }
-                //если она доступна то сбрасываем ошибку и перезапускаем
+                //если она доступна, то сбрасываем ошибку и перезапускаем
                 _playbackState.update { it.copy(error = null) }
 
                 player.prepare()
                 player.play()
 
-                //если ошибки нет то и плеер играет или готовится играть
+                //если ошибки нет, то и плеер играет или готовится играть
             } else if (player.playWhenReady) {
                 player.pause()
 
-            //если нет ошибки и плеер не играл
+                //если нет ошибки и плеер не играл
             } else {
                 player.play()
             }
         }
     }
 
-    fun seekToNextTrack() {
+    override fun seekToNextTrack() {
         onMain {
             if (released) return@onMain
 
@@ -341,7 +340,7 @@ class PlayerConnection @Inject constructor(
         }
     }
 
-    fun seekToPreviousTrack() {
+    override fun seekToPreviousTrack() {
         onMain {
             if (released) return@onMain
 
@@ -404,7 +403,7 @@ class PlayerConnection @Inject constructor(
         }
     }
 
-    fun seekTo(position: Long) {
+    override fun seekTo(position: Long) {
         onMain {
             if (released) return@onMain
             val player = controller ?: return@onMain

@@ -24,7 +24,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import ru.magnum.musicapp.R
-import ru.magnum.musicapp.data.exoplayer.PlaybackState
+import ru.magnum.musicapp.domain.model.PlaybackState
 import ru.magnum.musicapp.domain.model.Track
 
 @Composable

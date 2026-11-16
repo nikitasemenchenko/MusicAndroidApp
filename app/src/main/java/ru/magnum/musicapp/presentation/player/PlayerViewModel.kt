@@ -10,37 +10,37 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import ru.magnum.musicapp.data.exoplayer.PlayerConnection
+import ru.magnum.musicapp.domain.player.MusicPlayer
 import ru.magnum.musicapp.domain.repository.TracksRepository
 import javax.inject.Inject
 
 @HiltViewModel
 class PlayerViewModel @Inject constructor(
-    private val playerConnection: PlayerConnection,
+    private val musicPlayer: MusicPlayer,
     private val repository: TracksRepository
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(PlayerUiState())
     val uiState = _uiState.asStateFlow()
-    val playbackState = playerConnection.playbackState
+    val playbackState = musicPlayer.playbackState
 
     init {
         observePlayback()
     }
 
-    fun togglePlayback(){
-        playerConnection.togglePlayback()
+    fun togglePlayback() {
+        musicPlayer.togglePlayback()
     }
 
-    fun seekToNextTrack(){
-        playerConnection.seekToNextTrack()
+    fun seekToNextTrack() {
+        musicPlayer.seekToNextTrack()
     }
 
-    fun seekToPreviousTrack(){
-        playerConnection.seekToPreviousTrack()
+    fun seekToPreviousTrack() {
+        musicPlayer.seekToPreviousTrack()
     }
 
-    fun seekTo(position: Long){
-        playerConnection.seekTo(position)
+    fun seekTo(position: Long) {
+        musicPlayer.seekTo(position)
     }
 
     private fun observePlayback() {
