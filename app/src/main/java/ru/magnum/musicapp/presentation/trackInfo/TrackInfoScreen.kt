@@ -38,7 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import ru.magnum.musicapp.R
-import ru.magnum.musicapp.data.mapper.getDurationString
+import ru.magnum.musicapp.presentation.utils.getDurationString
 import ru.magnum.musicapp.domain.model.Track
 import ru.magnum.musicapp.presentation.components.CoverImage
 import ru.magnum.musicapp.presentation.components.RunningText

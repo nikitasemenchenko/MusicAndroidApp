@@ -37,7 +37,8 @@ android {
                 "BASE_URL",
                 "\"https://magnum-music.duckdns.org/\""
             )
-
+            isMinifyEnabled = true
+            isShrinkResources = true
         }
     }
     compileOptions {
@@ -56,6 +57,10 @@ kotlin {
     }
 }
 
+ksp {
+    arg("room.schemaLocation", "$projectDir/schemas")
+}
+
 dependencies {
     // Core
     implementation(platform(libs.androidx.compose.bom))
@@ -66,7 +71,6 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
-    implementation(libs.core.ktx)
     //Testing and debug
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
