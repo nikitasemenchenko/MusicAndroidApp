@@ -31,7 +31,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import ru.magnum.musicapp.data.exoplayer.PlayerConnectionStatus
+import ru.magnum.musicapp.domain.model.PlayerConnectionStatus
 
 @Composable
 fun CatalogScreen(

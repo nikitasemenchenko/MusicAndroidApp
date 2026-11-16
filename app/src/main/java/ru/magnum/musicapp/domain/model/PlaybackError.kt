@@ -1,4 +1,4 @@
-package ru.magnum.musicapp.data.exoplayer
+package ru.magnum.musicapp.domain.model
 
 enum class PlaybackError {
     FILE_NOT_FOUND,

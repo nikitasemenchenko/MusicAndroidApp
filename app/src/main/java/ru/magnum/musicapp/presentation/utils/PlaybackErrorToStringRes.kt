@@ -1,8 +1,8 @@
-package ru.magnum.musicapp.presentation.components
+package ru.magnum.musicapp.presentation.utils
 
 import androidx.annotation.StringRes
 import ru.magnum.musicapp.R
-import ru.magnum.musicapp.data.exoplayer.PlaybackError
+import ru.magnum.musicapp.domain.model.PlaybackError
 
 @StringRes
 fun PlaybackError.toStringRes(): Int {

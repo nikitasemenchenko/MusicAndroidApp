@@ -1,4 +1,4 @@
-package ru.magnum.musicapp.data.exoplayer
+package ru.magnum.musicapp.domain.model
 
 data class PlaybackState(
     val currentTrackId: String? = null,

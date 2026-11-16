@@ -2,6 +2,7 @@ package ru.magnum.musicapp.data.exoplayer
 
 import androidx.media3.common.PlaybackException
 import androidx.media3.datasource.HttpDataSource
+import ru.magnum.musicapp.domain.model.PlaybackError
 
 fun PlaybackException.toPlaybackError(): PlaybackError {
     return when(this.errorCode) {

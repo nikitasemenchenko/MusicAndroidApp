@@ -10,20 +10,19 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import ru.magnum.musicapp.data.exoplayer.PlayerConnection
-import ru.magnum.musicapp.domain.model.Track
+import ru.magnum.musicapp.domain.player.MusicPlayer
 import ru.magnum.musicapp.domain.repository.TracksRepository
 import javax.inject.Inject
 
 @HiltViewModel
 class CatalogViewModel @Inject constructor(
     private val repository: TracksRepository,
-    private val playerConnection: PlayerConnection
+    private val musicPlayer: MusicPlayer
 ) : ViewModel() {
     private val _state = MutableStateFlow(CatalogUIState())
     val state = _state.asStateFlow()
-    val playerConnectionStatus = playerConnection.connectionStatus
-    val playbackState = playerConnection.playbackState
+    val playerConnectionStatus = musicPlayer.connectionStatus
+    val playbackState = musicPlayer.playbackState
 
     private var tracksJob: Job? = null
     private var syncJob: Job? = null
@@ -82,13 +81,13 @@ class CatalogViewModel @Inject constructor(
         val track = tracks.getOrNull(index) ?: return
 
         if (playbackState.value.currentTrackId == track.id.toString()) {
-            playerConnection.togglePlayback()
+            musicPlayer.togglePlayback()
         } else {
-            playerConnection.playTrack(tracks, index, 0L)
+            musicPlayer.playTrack(tracks, index, 0L)
         }
     }
 
     fun retryPlayerConnection() {
-        playerConnection.retryConnection()
+        musicPlayer.retryConnection()
     }
 }
