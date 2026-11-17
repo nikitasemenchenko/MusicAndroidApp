@@ -27,6 +27,7 @@ import ru.magnum.musicapp.presentation.components.MiniPlayer
 import ru.magnum.musicapp.presentation.utils.toStringRes
 import ru.magnum.musicapp.presentation.player.PlayerScreen
 import ru.magnum.musicapp.presentation.player.PlayerViewModel
+import ru.magnum.musicapp.presentation.settings.SettingsScreen
 import ru.magnum.musicapp.presentation.trackInfo.TrackInfoScreen
 
 @Composable
@@ -87,7 +88,11 @@ fun AppNavigation() {
             modifier = Modifier.padding(innerPadding)
         ) {
             composable<CatalogScreen> {
-                CatalogScreen()
+                CatalogScreen(
+                    onOpenSettings = {
+                        navController.navigate(SettingsScreen)
+                    }
+                )
             }
 
             composable<PlayerScreen> {
@@ -102,6 +107,12 @@ fun AppNavigation() {
 
             composable<TrackInfoScreen> {
                 TrackInfoScreen(
+                    onBack = { navController.popBackStack() }
+                )
+            }
+
+            composable<SettingsScreen> {
+                SettingsScreen(
                     onBack = { navController.popBackStack() }
                 )
             }

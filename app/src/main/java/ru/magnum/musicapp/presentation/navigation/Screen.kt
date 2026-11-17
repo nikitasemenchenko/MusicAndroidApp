@@ -12,3 +12,6 @@ object PlayerScreen
 data class TrackInfoScreen(
     val id: Int
 )
+
+@Serializable
+object SettingsScreen
