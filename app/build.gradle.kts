@@ -103,12 +103,12 @@ dependencies {
     implementation(libs.media3.exoplayer.dash)
     implementation(libs.media3.ui.compose.material3)
     implementation(libs.media3.session)
-
     //Coil
     implementation(libs.coil)
     implementation(libs.coil.compose)
     implementation(libs.coil.network)
     //Icons
     implementation(libs.androidx.compose.material.icons.extended)
-
+    //DataStore
+    implementation(libs.androidx.datastore.preferences)
 }
