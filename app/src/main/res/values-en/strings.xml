@@ -1,0 +1,49 @@
+<resources>
+    <string name="app_name">MusicApp</string>
+
+    <!--Errors-->
+    <string name="playback_error_network">No connection to server</string>
+    <string name="playback_error_file_not_found">Audio file not found on server</string>
+    <string name="playback_error_http">Server error loading audio</string>
+    <string name="playback_error_timeout">Server timed out</string>
+    <string name="playback_error_unknown">Failed to play track</string>
+
+    <string name="cover_content_description">Track cover artwork</string>
+    <string name="skip_previous_content_description">Previous track</string>
+    <string name="play_pause_content_description">Play or pause</string>
+    <string name="skip_next_content_description">Next track</string>
+
+    <string name="track_info_title">Track Details</string>
+    <string name="navigate_back">Back</string>
+    <string name="track_info_not_found">Track not found</string>
+    <string name="track_info_load_failed">Failed to load track details</string>
+    <string name="track_info_unknown_value">Unknown</string>
+    <string name="track_info_track_subtitle">%1$s · %2$s</string>
+    <string name="track_info_artist">Artist</string>
+    <string name="track_info_album">Album</string>
+    <string name="track_info_genres">Genres</string>
+    <string name="track_info_release_date">Release date</string>
+    <string name="play_track">Play</string>
+    <string name="retry">Retry</string>
+    <string name="player_collapse">Collapse player</string>
+    <string name="more_options">More options</string>
+    <string name="track_details">Track details</string>
+    <string name="action_retry">Retry</string>
+
+    <!--Settings-->
+    <string name="settings_title">Settings</string>
+    <string name="settings_theme_label">Theme</string>
+    <string name="settings_theme_system">System default</string>
+    <string name="settings_theme_light">Light</string>
+    <string name="settings_theme_dark">Dark</string>
+    <string name="settings_language_label">Language</string>
+    <string name="settings_language_system">System default</string>
+    <string name="settings_language_ru">Русский</string>
+    <string name="settings_language_en">English</string>
+
+    <!--Catalog-->
+    <string name="catalog_connecting_player">Connecting to player…</string>
+    <string name="catalog_player_connection_error">Failed to connect to player</string>
+    <string name="catalog_empty">Catalog is empty</string>
+    <string name="catalog_load_error">Failed to load catalog</string>
+</resources>

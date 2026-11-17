@@ -30,5 +30,20 @@
     <string name="track_details">Детали трека</string>
     <string name="action_retry">Повторить</string>
 
+    <!--Настройки-->
+    <string name="settings_title">Настройки</string>
+    <string name="settings_theme_label">Тема оформления</string>
+    <string name="settings_theme_system">Системная</string>
+    <string name="settings_theme_light">Светлая</string>
+    <string name="settings_theme_dark">Тёмная</string>
+    <string name="settings_language_label">Язык приложения</string>
+    <string name="settings_language_system">Системный</string>
+    <string name="settings_language_ru">Русский</string>
+    <string name="settings_language_en">English</string>
 
+    <!--Каталог-->
+    <string name="catalog_connecting_player">Подключение к плееру…</string>
+    <string name="catalog_player_connection_error">Не удалось подключиться к плееру</string>
+    <string name="catalog_empty">Каталог пуст</string>
+    <string name="catalog_load_error">Не удалось загрузить каталог</string>
 </resources>
