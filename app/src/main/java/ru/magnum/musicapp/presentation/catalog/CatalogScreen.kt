@@ -3,12 +3,15 @@ package ru.magnum.musicapp.presentation.catalog
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -38,7 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import ru.magnum.musicapp.R
-import ru.magnum.musicapp.domain.model.PlayerConnectionStatus
+import ru.magnum.musicapp.presentation.components.CoverImage
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -47,7 +50,6 @@ fun CatalogScreen(
     viewModel: CatalogViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.state.collectAsStateWithLifecycle()
-    val playerConnectionStatus by viewModel.playerConnectionStatus.collectAsStateWithLifecycle()
     val playbackState by viewModel.playbackState.collectAsStateWithLifecycle()
 
     Scaffold(
@@ -73,32 +75,10 @@ fun CatalogScreen(
         }
     ) { innerPadding ->
         Column(
-            modifier = Modifier.fillMaxSize().padding(innerPadding)
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
         ) {
-            if (playerConnectionStatus == PlayerConnectionStatus.CONNECTING) {
-                Text(
-                    "Подключение к плееру…",
-                    modifier = Modifier.padding(16.dp)
-                )
-            }
-            if (playerConnectionStatus == PlayerConnectionStatus.ERROR) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        "Не удалось подключиться к плееру",
-                        modifier = Modifier.weight(1f)
-                    )
-                    Button(
-                        onClick = { viewModel.retryPlayerConnection() }
-                    ) {
-                        Text("Повторить")
-                    }
-                }
-            }
             PullToRefreshBox(
                 isRefreshing = uiState.isSyncing,
                 onRefresh = { viewModel.getTracks() },
@@ -111,7 +91,7 @@ fun CatalogScreen(
                         LazyColumn(
                             modifier = Modifier
                                 .fillMaxSize()
-                                .padding(16.dp)
+                                .padding(horizontal = 16.dp, vertical = 8.dp)
                         ) {
                             itemsIndexed(
                                 uiState.tracks,
@@ -123,6 +103,7 @@ fun CatalogScreen(
                                 TrackItem(
                                     title = track.title,
                                     artists = track.artists.joinToString { it.name },
+                                    coverUrl = track.coverUrl,
                                     isCurrent = isCurrent,
                                     isPlaying = isCurrent &&
                                             playbackState.playWhenReady &&
@@ -146,7 +127,8 @@ fun CatalogScreen(
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Text(
-                                text = uiState.errorMessage ?: "Произошла ошибка",
+                                text = uiState.errorMessage
+                                    ?: stringResource(R.string.catalog_load_error),
                                 color = MaterialTheme.colorScheme.error,
                                 style = MaterialTheme.typography.bodyLarge
                             )
@@ -154,14 +136,14 @@ fun CatalogScreen(
                                 onClick = { viewModel.getTracks() },
                                 modifier = Modifier.padding(top = 8.dp)
                             ) {
-                                Text("Повторить")
+                                Text(stringResource(R.string.retry))
                             }
                         }
                     }
 
                     else -> {
                         Text(
-                            "Каталог пуст",
+                            text = stringResource(R.string.catalog_empty),
                             modifier = Modifier.align(Alignment.Center)
                         )
                     }
@@ -175,6 +157,7 @@ fun CatalogScreen(
 private fun TrackItem(
     title: String,
     artists: String,
+    coverUrl: String?,
     isCurrent: Boolean,
     isPlaying: Boolean,
     onClick: () -> Unit
@@ -198,18 +181,30 @@ private fun TrackItem(
             .padding(8.dp)
 
     ) {
+        CoverImage(
+            model = coverUrl,
+            modifier = Modifier
+                .size(48.dp)
+                .clip(RoundedCornerShape(8.dp))
+        )
+
+        Spacer(modifier = Modifier.width(12.dp))
+
         Column(
             modifier = Modifier
                 .weight(1f)
-                .padding(8.dp)
+                .padding(vertical = 4.dp)
         ) {
             Text(
                 text = title,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.bodyLarge
             )
+            Spacer(modifier = Modifier.height(2.dp))
             Text(
                 text = artists,
-                style = MaterialTheme.typography.bodySmall
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
         Icon(
