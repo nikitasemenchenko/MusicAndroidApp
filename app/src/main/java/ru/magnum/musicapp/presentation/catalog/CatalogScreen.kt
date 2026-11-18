@@ -127,7 +127,7 @@ fun CatalogScreen(
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Text(
-                                text = uiState.errorMessage
+                                text = uiState.errorMessage?.asString()
                                     ?: stringResource(R.string.catalog_load_error),
                                 color = MaterialTheme.colorScheme.error,
                                 style = MaterialTheme.typography.bodyLarge

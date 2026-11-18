@@ -25,6 +25,7 @@ import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
+import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
 fun RunningText(
@@ -43,7 +44,7 @@ fun RunningText(
         if (!isOverflowing) return@LaunchedEffect
 
         while (true) {
-            delay(1_000L)
+            delay(1_000L.milliseconds)
             isScrolling = true
             try {
                 val maxScroll = snapshotFlow { scrollState.maxValue }
@@ -59,7 +60,7 @@ fun RunningText(
                         easing = LinearEasing
                     )
                 )
-                delay(1_000L)
+                delay(1_000L.milliseconds)
                 scrollState.animateScrollTo(
                     value = 0,
                     animationSpec = tween(

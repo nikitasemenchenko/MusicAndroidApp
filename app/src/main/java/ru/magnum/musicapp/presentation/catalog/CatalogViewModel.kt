@@ -10,8 +10,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import ru.magnum.musicapp.R
 import ru.magnum.musicapp.domain.player.MusicPlayer
 import ru.magnum.musicapp.domain.repository.TracksRepository
+import ru.magnum.musicapp.presentation.utils.UiText
 import javax.inject.Inject
 
 @HiltViewModel
@@ -71,7 +73,9 @@ class CatalogViewModel @Inject constructor(
             } catch (e: Exception) {
                 _state.update {
                     it.copy(
-                        errorMessage = if (it.tracks.isEmpty()) "Не удалось загрузить каталог" else null
+                        errorMessage = if (it.tracks.isEmpty()) {
+                            UiText.StringResource(R.string.catalog_load_error)
+                        } else null
                     )
                 }
             } finally {

@@ -57,7 +57,7 @@ class PlayerConnection @Inject constructor(
                     positionMs = player.currentPosition
                 )
             }
-            mainHandler.postDelayed(this, 500L)
+            mainHandler.postDelayed(this, POSITION_UPDATE_INTERVAL_MS)
         }
 
     }
@@ -209,7 +209,7 @@ class PlayerConnection @Inject constructor(
 
                                     override fun onPlayerError(error: PlaybackException) {
                                         Log.d(
-                                            "PlaybackError",
+                                            LOG_TAG,
                                             "code=${error.errorCode} cause=${error.cause?.javaClass}"
                                         )
                                         _playbackState.update {
@@ -447,5 +447,10 @@ class PlayerConnection @Inject constructor(
         } else {
             mainHandler.post(action)
         }
+    }
+
+    private companion object {
+        const val POSITION_UPDATE_INTERVAL_MS = 500L
+        const val LOG_TAG = "PlayerConnection"
     }
 }
