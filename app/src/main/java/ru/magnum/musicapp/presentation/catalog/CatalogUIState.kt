@@ -6,5 +6,7 @@ data class CatalogUIState(
     val tracks: List<Track> = emptyList(),
     val isLoading: Boolean = true,
     val isSyncing: Boolean = false,
+    val isRefreshing: Boolean = false,
+    val isLocalLoaded: Boolean = false,
     val errorMessage: String? = null
 )

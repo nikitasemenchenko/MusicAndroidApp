@@ -80,8 +80,8 @@ fun CatalogScreen(
                 .padding(innerPadding)
         ) {
             PullToRefreshBox(
-                isRefreshing = uiState.isSyncing,
-                onRefresh = { viewModel.getTracks() },
+                isRefreshing = uiState.isRefreshing,
+                onRefresh = { viewModel.getTracks(isPullToRefresh = true) },
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth()
@@ -113,7 +113,7 @@ fun CatalogScreen(
                             }
                         }
 
-                    uiState.isLoading -> {
+                    uiState.isLoading || !uiState.isLocalLoaded -> {
                         CircularProgressIndicator(
                             modifier = Modifier.align(Alignment.Center)
                         )

@@ -21,7 +21,6 @@ class CatalogViewModel @Inject constructor(
 ) : ViewModel() {
     private val _state = MutableStateFlow(CatalogUIState())
     val state = _state.asStateFlow()
-    val playerConnectionStatus = musicPlayer.connectionStatus
     val playbackState = musicPlayer.playbackState
 
     private var tracksJob: Job? = null
@@ -31,15 +30,15 @@ class CatalogViewModel @Inject constructor(
         getTracks()
     }
 
-    fun getTracks() {
+    fun getTracks(isPullToRefresh: Boolean = false) {
         if (tracksJob?.isActive != true) {
             tracksJob = viewModelScope.launch {
                 repository.getTracks()
                     .catch {
                         _state.update {
                             it.copy(
-                                isLoading = false,
-                                errorMessage = "Не удалось загрузить каталог"
+                                isLocalLoaded = true,
+                                isLoading = false
                             )
                         }
                     }
@@ -47,7 +46,8 @@ class CatalogViewModel @Inject constructor(
                         _state.update {
                             it.copy(
                                 tracks = tracks,
-                                isLoading = tracks.isEmpty() && it.isSyncing,
+                                isLocalLoaded = true,
+                                isLoading = false,
                                 errorMessage = if (tracks.isNotEmpty()) null else it.errorMessage
                             )
                         }
@@ -57,7 +57,11 @@ class CatalogViewModel @Inject constructor(
 
         if (syncJob?.isActive == true) return
         _state.update {
-            it.copy(isLoading = it.tracks.isEmpty(), isSyncing = true, errorMessage = null)
+            it.copy(
+                isSyncing = true,
+                isRefreshing = isPullToRefresh,
+                errorMessage = null
+            )
         }
         syncJob = viewModelScope.launch {
             try {
@@ -71,7 +75,12 @@ class CatalogViewModel @Inject constructor(
                     )
                 }
             } finally {
-                _state.update { it.copy(isLoading = false, isSyncing = false) }
+                _state.update {
+                    it.copy(
+                        isSyncing = false,
+                        isRefreshing = false
+                    )
+                }
             }
         }
     }
