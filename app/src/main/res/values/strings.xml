@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">MusicApp</string>
+    <string name="app_name">Spectrum</string>
 
     <!--Ошибки-->
     <string name="playback_error_network">Нет подключения к серверу</string>

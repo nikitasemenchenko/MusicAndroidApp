@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">MusicApp</string>
+    <string name="app_name">Spectrum</string>
 
     <!--Errors-->
     <string name="playback_error_network">No connection to server</string>
