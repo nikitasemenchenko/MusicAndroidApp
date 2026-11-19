@@ -1,22 +1,17 @@
 package ru.magnum.musicapp
 
 import android.os.Bundle
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.core.os.LocaleListCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import ru.magnum.musicapp.ui.theme.MusicAppTheme
 import dagger.hilt.android.AndroidEntryPoint
 import ru.magnum.musicapp.data.repository.UserPreferencesRepository
-import ru.magnum.musicapp.domain.model.AppLanguage
 import ru.magnum.musicapp.domain.model.AppTheme
 import ru.magnum.musicapp.presentation.navigation.AppNavigation
-import ru.magnum.musicapp.ui.theme.MusicAppTheme
 import javax.inject.Inject
 
 @AndroidEntryPoint
