@@ -5,6 +5,11 @@ Browse the catalog, view track details, stream audio in background, and customiz
 
 The app works with a companion backend (`music-backend`) that provides track metadata and audio streaming via HTTP Range Requests.
 
+## Download
+
+Download the latest APK from
+[GitHub Releases](https://github.com/nikitasemenchenko/MusicAndroidApp/releases/latest)
+
 ## Tech Stack
 
 | Layer                  | Technology                              |
@@ -30,7 +35,7 @@ The app works with a companion backend (`music-backend`) that provides track met
                             │
 ┌───────────────────────────▼────────────────────────────┐
 │                       Domain Layer                     │
-│      (MusicPlayer Interface, Track, PlaybackState)      │
+│      (MusicPlayer Interface, Track, PlaybackState)     │
 └───────────────────────────┬────────────────────────────┘
                             │
 ┌───────────────────────────▼────────────────────────────┐
